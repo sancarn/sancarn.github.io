@@ -16,6 +16,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.min.js"></script>
         <script>
             //Automatically parse default zip data
+            JSZipUtils.getBinaryContent('./Transportable.icmt', function(err, data) {
                 if(err) {
                     throw err; // or handle err
                 }
