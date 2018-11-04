@@ -1,0 +1,204 @@
+<html>
+    <head>
+        <!--<Include JQuery>-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+
+        <!--<Include JSTree>-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+
+        <!--<Include JSZip>-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js"></script>
+        
+        <!--<Include JSTree>-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.6/jstree.min.js"></script>
+
+        <!--<Include JSZipUtils>-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.min.js"></script>
+        <script>
+            //Automatically parse default zip data
+                if(err) {
+                    throw err; // or handle err
+                }
+                //create tree
+                parseZipTreeData(data);
+            });
+            
+            //Add drop handler for files
+            document.addEventListener("dragover",e=>e.preventDefault(),false)
+            document.addEventListener("drop",function(event){
+                event.preventDefault()
+                var file = event.dataTransfer.files[0]
+                //TODO - Print file info:
+                //file.name - file name
+                //file.size - file size
+                parseZipTreeData(file);
+            },false)
+            
+            /**
+             * parseZipTreeData(binZipData)
+             * parses the binary zip data and dumps the contents to element #TDBFull1.
+             */
+            function parseZipTreeData(binZipData){
+                JSZip.loadAsync(binZipData).then(function(zip) {
+                    window._zip = zip;
+
+                    var _files = [];
+                    var fileCount = 0;
+                    var processedCount = 0;
+
+                    //Loop over all zip file's children
+                    zip.forEach(function(path,item){
+                        //Contents of directories are handled by JSZip. We don't need to asynchronously deal with this.
+                        // thus we treat these differently to files.
+                        if(!item.dir){ //is File
+                            fileCount++;
+                            
+                            //Get contents/data of file. This is asynchronous, so we have to use fileCount and processedCount 
+                            // to monitor when we are done.
+                            item.async("string").then(function(data){
+                                //Add a file to the files array
+                                //Parent is used to establish the tree
+                                var pathData = /^(.+\/)?([^\/]*)$/.exec(item.name);
+                                _files.push({
+                                    "parent":pathData[1]||"",
+                                    "path":item.name,
+                                    "icon": "jstree-file",
+                                    "text": pathData[2],
+                                    "data": {
+                                        "contents": data
+                                    }
+                                });
+
+                                //When the count of files is equal to those that have been processed then we are on the last file and
+                                // we should make the tree using JSTree.
+                                processedCount++;
+                                if(fileCount==processedCount){
+                                    makeTree(_files)
+                                }
+                            });
+                        } else { //is Directory
+                            //Given that all this happens synchronously we don't need any checks based on processed and file counts.
+
+                            //Add directory to array.
+                            //Parent is used to establish the tree
+                            var pathData = /^(.+\/)?([^\/]+)\/$/.exec(item.name);
+                            _files.push({
+                                "parent":pathData[1]||"",
+                                "path":item.name,
+                                "icon":"jstree-folder",
+                                "text": pathData[2],
+                                "data": {
+                                    "contents": ""
+                                },
+                                "isDir":true
+                            });
+                        };
+                    });
+                });
+            };
+            
+            function makeParent(files,_dict,item){
+                var pathData = /^(.+\/)?([^\/]+)\/$/.exec(item.parent);
+                var parent={
+                    "parent":pathData[1]||"",
+                    "path":item.parent,
+                    "icon":"jstree-folder",
+                    "text": pathData[2],
+                    "data": {
+                        "contents": ""
+                    },
+                    "isDir":true
+                }
+                files.push(parent);
+                _dict[parent.path] = parent
+                return parent;
+            }
+
+            /**
+             * makeTree(files)
+             * Takes a list of files and folders and converts them into a JSTree.
+             * Dumps the resulting tree into #TDBFull1
+             */
+            function makeTree(files){
+                //Create a dictionary of all files and folders dependant on their paths
+                var _dict = {};
+                files.forEach(function(item){
+                    _dict[item.path] = item;
+                });
+                
+                //If an item has a parent then add it to the parent's children
+                files.forEach(function(item){
+                    if(item.parent!=""){
+                        var parent = _dict[item.parent];
+                        if(!parent) var parent = makeParent(files,_dict,item); //sometimes folders are not picked up by JSZip...? Not sure why
+                        if(!parent.children) parent.children=[];
+                        parent.children.push(item);
+                    };
+                });
+
+                //Filter out all root-tree objects
+                var tree_data = files.filter(function(el){
+                    return el.parent=="";
+                })
+                
+                //Make JSTree on #TDBFull1
+                if(window.initialised){
+                    $("#TDBFull1").jstree().teardown()
+                }
+                var tree = $("#TDBFull1").jstree({
+                    'core':{
+                        'data':tree_data,
+                        'themes' : {
+                            'responsive' : false,
+                            'variant' : 'small',
+                            'stripes' : true
+                        }
+                    },
+                    "plugins":[
+                        "wholerow"
+                    ]
+                });
+                
+                //Add listener to JSTree node's. OnClick we want to set the content of 
+                // #TDBFull1TA to the content of the file clicked.
+                tree.on("select_node.jstree",function(e,data){
+                    $("#TDBFull1TA").val(data.node.data.contents)
+                });
+
+                //This is mainly for debugging purposes
+                window.tree = tree
+
+                window.initialised = true
+            }
+        </script>
+        <style>
+            .TDB_Structure_Full {
+                display:table;
+                table-layout:fixed;
+                width:100%;
+                height:144px;
+            }
+            .TDBFull1 {
+                display:table-cell;
+                resize:none;
+                height:100%;
+            }
+            textarea {
+                width:100%;
+                font-size: 10px;
+                resize:none;
+                border-color:rgb(240, 240, 240);
+            }
+            textarea:focus {
+                outline: none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="TDB_Structure_Full">
+        
+        <div id="TDBFull1" class="TDBFull1"></div>
+        <textarea id="TDBFull1TA" class="TDBFull1" readonly></textarea>
+        </div>
+    </body>
+</html>

@@ -49,63 +49,24 @@
             At this point curiosity got the best of me and I opened the transportable database in 7-zip to take a peak inside. Below is an interactive example of an unzipped transportable database. All files which contain binary data have been removed for now.
           </p>
 
-          <div class="TDB_Structure_Full">
-            <script>
-              $(function(){
-                var tree = $("#TDBFull1").jstree({
-                  'core':{
-                    'data':window.data.TSDBFull1,
-                    'themes' : {
-                      'responsive' : false,
-                      'variant' : 'small',
-                      'stripes' : true
-                    }
-                  },
-                  "plugins":[
-                    "wholerow"
-                  ]
-                });
-                tree.on("select_node.jstree",function(e,data){
-                  $("#TDBFull1TA").val(data.node.data.contents)
-                });
-                window.tree = tree
-              });
-              
-            </script>
-            <style>
-              .TDB_Structure_Full {
-                display:table;
-                table-layout:fixed;
-                width:100%;
-                height:144px;
-              }
-              .TDBFull1 {
-                display:table-cell;
-                resize:none;
-                height:100%;
-              }
-              textarea {
-                width:100%;
-                font-size: 10px;
-                resize:none;
-                border-color:rgb(240, 240, 240);
-              }
-              textarea:focus {
-                outline: none !important;
-              }
-            </style>
-            <div id="TDBFull1" class="TDBFull1"></div>
-            <textarea id="TDBFull1TA" class="TDBFull1" readonly></textarea>
-          </div>
+          <iframe 
+            class="iframeExample"
+            onload="iframe_resize(this)"
+            frameborder="0"
+            scrolling="no"
+            src="./examples/1/Example.html"
+            width=100%
+            height="275px"
+          ></iframe>
 
           <p>
-            Ever since I discovered that you could unzip a transportable, I began wondering what other data could be parsed out and into other applications. The possibilities seemed endless.
+            Ever since I discovered that you could unzip a transportable, I began wondering which other data could be extracted from transportable databases into other applications. The possibilities seemed endless.
           </p>
 
           <h2>Investigating the raw files</h2>
 
           <p>
-            Let's look in a bit more detail at the above example, the resultant database tree and how this data could be linked together.
+            The transportable database displayed above finally maps to the following ICM tree structure.
           </p>
 
       </main>
