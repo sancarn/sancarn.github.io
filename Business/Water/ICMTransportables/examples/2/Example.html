@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <!--<Include JQuery>-->
+        <script src="./libs/jquery.min.js"></script>
+
+        <!--<Include JSTree>-->
+        <link rel="stylesheet" href="./libs/jstree.css" />
+
+        <!--<Include JSZip>-->
+        <script src="./libs/jszip.min.js"></script>
+        
+        <!--<Include JSTree>-->
+        <script src="./libs/jstree.min.js"></script>
+
+        <!--<Include JSZipUtils>-->
+        <script src="./libs/jszip-utils.min.js"></script>
+
+        <!--<Include Transportable parser + css>-->
+        <script src="./Transportable.js"></script>
+        <link rel="stylesheet" href="./Transportable.css" />
+
+        <script>
+            $(function(){
+                window.transportable = new Transportable("./Transportable.icmt")
+                window.transportable.onLoad(function(){
+                    t = transportable.toJsTree("#TDBFull1")
+                })
+            })
+        </script>
+
+    </head>
+    <body>
+        <div id="TDBFull1" class="TDBFull1"></div>  
+    </body>
+</html>
