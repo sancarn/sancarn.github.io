@@ -16,7 +16,7 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip-utils/0.0.2/jszip-utils.min.js"></script>
         <script>
             //Automatically parse default zip data
-            JSZipUtils.getBinaryContent('./Transportable.icmt', function(err, data) {
+            JSZipUtils.getBinaryContent('./../../../libs/Transportable.icmt', function(err, data) {
                 if(err) {
                     throw err; // or handle err
                 }
@@ -129,6 +129,7 @@
                 
                 //If an item has a parent then add it to the parent's children
                 files.forEach(function(item){
+                    console.log(item)
                     if(item.parent!=""){
                         var parent = _dict[item.parent];
                         if(!parent) var parent = makeParent(files,_dict,item); //sometimes folders are not picked up by JSZip...? Not sure why
@@ -193,13 +194,20 @@
             textarea:focus {
                 outline: none !important;
             }
+            .scrollWrapper {
+                width:100%;
+                height:300px;
+                overflow: scroll;
+            }
         </style>
     </head>
     <body>
-        <div class="TDB_Structure_Full">
-        
-        <div id="TDBFull1" class="TDBFull1"></div>
-        <textarea id="TDBFull1TA" class="TDBFull1" readonly></textarea>
+        <div class="scrollWrapper">
+            <div class="TDB_Structure_Full">
+                <div id="TDBFull1" class="TDBFull1"></div>
+                <textarea id="TDBFull1TA" class="TDBFull1" readonly></textarea>
+            </div>
         </div>
+        
     </body>
 </html>

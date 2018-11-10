@@ -2,16 +2,23 @@
   <head>
     <!--<Include Theme>-->
     <link rel="stylesheet" type="text/css" href="./css/Cayman.css"/>
-    
-    <!--<Include data>-->
-    <script src="./data/Data.js"></script>
 
     <!--<Include JQuery>-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.1/jquery.min.js"></script>
+    <script src="./libs/libs/jquery.min.js"></script>
 
-    <!--<Include JSTree>-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.6/jstree.min.js"></script>
+    <!--<Include JSZip>-->
+    <script src="./libs/libs/jszip.min.js"></script>
+    <!--<Include JSZipUtils>-->
+    <script src="./libs/libs/jszip-utils.min.js"></script>
+    
+    <!--<Include JSTree for visualtisation>-->
+    <script src="./libs/libs/jstree.min.js"></script>
+    <link rel="stylesheet" href="./libs/libs/jstree.css" />
+
+    <!--<Include Transportable parser + css>-->
+    <script src="./libs/Transportable.js"></script>
+    <link rel="stylesheet" href="./libs/Transportable.css" />
+
   </head>
   <body>
       <header class="page-header">
@@ -49,15 +56,15 @@
             At this point curiosity got the best of me and I opened the transportable database in 7-zip to take a peak inside. Below is an interactive example of an unzipped transportable database. All files which contain binary data have been removed for now.
           </p>
 
-          <iframe 
-            class="iframeExample"
-            onload="iframe_resize(this)"
-            frameborder="0"
-            scrolling="no"
-            src="./examples/1/Example.html"
-            width=100%
-            height="275px"
-          ></iframe>
+          <script>
+              $(function(){
+                window.transportable = new Transportable("./libs/Transportable.icmt")
+                window.transportable.onLoad(function(){
+                  transportable.toFileViewer("#TDBEG1");
+                })
+              })
+          </script>
+          <div id="TDBEG1"></div>
 
           <p>
             Ever since I discovered that you could unzip a transportable, I began wondering which other data could be extracted from transportable databases into other applications. The possibilities seemed endless.
@@ -68,16 +75,19 @@
           <p>
             After the transportable database shown above is loaded in ICM it has the following database structure:
           </p>
-
-          <iframe 
-            class="iframeExample"
-            onload="iframe_resize(this)"
-            frameborder="0"
-            scrolling="no"
-            src="./examples/2/Example.html"
-            width=100%
-            height="275px"
-          ></iframe>
+          <script>
+            $(function(){
+              //window.transportable = new Transportable("./libs/Transportable.icmt")
+              window.transportable.onLoad(function(){
+                transportable.toJsTree("#TransportablePreview1");
+              })
+            })
+          </script>
+          <div id="TransportablePreview1"></div>
+          
+          <p>
+            Some great detail in the next section here also!
+          </p>
 
       </main>
   </body>
