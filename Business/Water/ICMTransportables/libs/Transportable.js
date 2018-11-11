@@ -223,12 +223,12 @@ class Transportable {
                 _parent:       _dict[item.zipParentPath],
                 text:          item.zipName,
                 path:          item.zipPath,
-                icon:          "jstree-file",
+                icon:          Transportable.lookup["SPECIAL-FILE"].icon,
                 transportable: This,
-                li_attr:       item,
                 children:      [],
                 data: {
-                    contents:item.data
+                    contents:item.data,
+                    item:item
                 }
             }
         });
@@ -245,19 +245,20 @@ class Transportable {
                 _parent:  superparent,
                 text:     pathData[2].substr(0,pathData[2].length -1),
                 path:     pathData[1]||""+pathData[2],
-                icon:     "jstree-folder",
-                li_attr:  undefined,
+                icon:     Transportable.lookup["SPECIAL-FOLDER"].icon,
                 children: [],
                 data: {
-                    contents: ""
+                    contents: "",
+                    item:undefined
                 }
+
             };
             return parent;
         }
         
         items.forEach(function(item){
-            if(!item._parent && _dict[item.li_attr.zipParentPath]){
-                item._parent = _dict[item.li_attr.zipParentPath];
+            if(!item._parent && _dict[item.data.item.zipParentPath]){
+                item._parent = _dict[item.data.item.zipParentPath];
             };
             if(!item._parent && item.path.includes("/")){
                 var parent = makeParent(item.path);
@@ -291,7 +292,23 @@ class Transportable {
         this.fileItems.forEach(item=>item._parent=undefined);
 
         //Create JSTree
-        this.jsFileTree = $(element).jstree({
+        const wrapper = $(element);
+        const table   = $('<div></div>');
+        const tree    = $('<div></div>');
+        const content = $("<textarea readonly></textarea>");
+        
+        //Build wrapper
+        wrapper.append(table);
+        table.append(tree);
+        table.append(content);
+        
+        //Fixed height:
+        wrapper.addClass("jsFileTree-Wrapper");
+        table.addClass("jsFileTree-Table");
+        tree.addClass("jsFileTree-Tree");
+        content.addClass("jsFileTree-Content");
+        
+        this.jsFileTree = tree.jstree({
             'core':{
                 'data': this.fileTree,
                 'themes' : {
@@ -303,6 +320,10 @@ class Transportable {
             "plugins":[
                 "wholerow"
             ],
+        });
+
+        tree.on("select_node.jstree",function(e,data){
+            content.val(data.node.data.contents)
         });
     }
     
@@ -700,8 +721,13 @@ Transportable.lookup = {
     },
     "FS:Velocity":{
         "icon": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAACcFBMVEX///8AAABrbXOEgoQAAAAAAAA5ODlCRUqEgoSclpw5ODkAAAAAAAC1srXOz84YHBgxMDGMioyUlpSlmqWtpq1CRUpzcXOMjpQxNDGcmpy9tr0AAAC1rrUAAADOx84IDBAICAgYHBiEhoStqq2tqrWUkpyUkpytpq1SUVKloq21sr1CPEJSUVIQEBBzdXOMiozGw8ZrbXN7fYRCPEK9w72EgoSUkpQhJCFKTVKUlpStsrVKTUqloqWMhoylpq3Gvsa1srWUlpwQEBAhICHGw86cmpytqq1KTUp7dXs5PDmcnqW1trVCRUK1ur3Oy84hJCmUkpSUlpzv4+/38/f/+///9//37/f38//v6/fGx87n3+/e09737//W596c27WE15yM16XO597Ox87e197e6+day3sxw1pKx3Njz4RSy3s5w2PW3+85w1rn6+/v6//n6/dz05y1385rz4xjy4SM163G495Cx2spvlohvlJSx3vW5+fO495Kx2ul273e5+9Cw2Mxvlrn5++E05ze4++t38Zzz4xax3MYukLn5/dSx3OU162929YYukre4+fn4+/v5/ec061Kw2try4R7z5Sc17W128YpvlLv5+/W3945vlqt170xvlKEz5zv6+/e3+e9285ax3tjx4St18aM06VCw2uU063v7+/e3+9ax4Rzy5TG29YpulKMz6Wc07U5vmPO297v7/el072Mz61Kw3PW3+fe2+/O1945w2u1187W2+eUz63W1+drx4xry5SEy6UhulIxulKt08bWz9bn3+fW0+fGz9aty8aty729z87O097n4+fn5+fOz+fOy+fOy97///9OWi0WAAAAUnRSTlMAEIycGAhje6XGayE53vdKY629xs6Erb17xt4p3jH3Smt7rc7Otb3WhM7ee5Q5tb3vlJxz573GUozG3nvOrdbv1r1rhPfO1oy1jM7ne973Ur3GnGutwQAAAAFiS0dEAIgFHUgAAAAHdElNRQfiCwYJHRAo6TkTAAACnUlEQVQ4y4WT51vTUBTGE00EG6YTqXHgwoGCAyeCW3GbhFy0OEGgYBBxtDIsKhpUUlFBhhWs6MUKJYopYFQU4i78TaZN61PKg74fss7v3nPPyXsQZKRQFPmn0HHjsTFCGIYjCD7hCBWCe99GLQ2dqCPwsHCaiYjEiajoScEENpnOmDJ1Gs2y9PSYGYCO1QcB+pkMSzOsRwylYplkEEDOYkfo6OzA/ISenHOMNWQdP3HylMErFswl9YSvZCxuXuzpM0x2ztncvHxjfpaXYAoyY+cvIDRgoZrTkGXM86zOzis859uEpRdpAKLLMHBFxvMcV1RczHEXSjhNBiYe1wBiMcNdzC3iLl2+YjJfLTWWagC7xF8JvpTlysq5imslOWWWElBWDgCovA6oZb5D4gnLqRumCu5mYdWtqtsWvvoOz/N37/HUikhvCkwXznA1JsF6v/bBw5rqWsH4SBCEunqBpxJD1IajSY9Zq7XG1CDUNTY11jfXNRkbVOCJWb0AWyiGoCszDFbr0/oWQWh9Zre32JufqyGh7YUHeBmtboGtWs0IsP0VhI7axta21x1QVaezCwpURDyhHXKNCN84HRAW2Ds6HZ64w/kWQjF5rb+MGBuE3Wb4V+/M3QUQUuv89iPWA0ly9bR3SZp6nd196o3f4PdEVKXns6ut571Llvt6P1g+uryguFFrNRZNQUmSZfmTs99i6f/c/kV9liUJipt8fzNlc+rAoCgrivL12/cfPxWPwK+B1LQthN8wZNjWAVkJ1O9tYSQRaFwyUXYHSOkLtJzXtGmyG4o2ZWjIDWyCW9kebFpih2jbuWs3GB7mk/ekV4K9wbZHU9L36dGE/VA+cBDV6w4dHjVa2ujpBm3xav9wbMwJTYoj/jPeweP/B4idHkdTpOxQAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE4LTExLTA2VDA5OjI5OjE2KzAwOjAwrrgGcgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxOC0xMS0wNlQwOToyOToxNiswMDowMN/lvs4AAAAASUVORK5CYII="
+    },
+    "SPECIAL-FILE":{
+        "icon":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA+UlEQVR42pWTX3KDIBCHvZmHqqYzSW/R1+YhZ5I7+BId/0QggPy6oGTSiUKz4zesoh+7DGbZGoyx7zzPsUeWiqpi2Ao+cdR1nZZsCYzWuF4bhLmoZEtgiX7owWjOjU64K9lrwSjtP64Y85U4dgXW2tcq6JHWCh1JQjtvCUIrYU+iAlduKqICdVePFQNLYv8nkFICM13GYKZyPZQbbXz5ScFtHP2LbtOUWnBtGTfS8+ge/Jwv6NrOnzzOV6ZXooKmbTCMw19uA50DYuyX8xATSCmIO4QQtNoEweleSGjaXNeWIaKCj/KI4nDylJ9fKNe8ODznp/Sf+U78AnC6O5JLd5DDAAAAAElFTkSuQmCC"
+    },
+    "SPECIAL-FOLDER":{
+        "icon":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA2klEQVR42o2SMQoCMRBFczUPYWVl5SG8gjYeQNjKAwgKVlaiIIKF2ChoabFaCCqCRH7YH2aTjGbg4SYz82Z20RgRx/XIptjMB57VuGvbrYY1YaDw8yp/89g5pkVHF7yvZweetQ1AJHGCagIE0UZVTt0CdlngBUHjs1w4VAGS+HVnIWBjlgCEG1GsCvBhZAHPqemg6DVjARL3wywpwL2kJmDzZT+0t+3EFciN2IQ8qQnwPhRIKOH5tOx7IgEmyAI04D5bwIn8x6GIAtn4VyDJFiBwkSJboIUmZv4LSwOi1pw38i8AAAAASUVORK5CYII="
     }
-    
     
     
   
