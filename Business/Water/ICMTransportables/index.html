@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
   <head>
     <!--<Include Theme>-->
@@ -19,6 +20,14 @@
     <script src="./libs/Transportable.js"></script>
     <link rel="stylesheet" href="./libs/Transportable.css" />
 
+    <!--<Include Transportable parser + css>-->
+    <script src="./libs/libs/vis.min.js"></script>
+    <link rel="stylesheet" href="./libs/libs/vis.min.css" />
+    
+    <!--<Include Katex>-->
+    <script src="./libs/libs/katex.js"></script>
+    <link rel="stylesheet" href="./libs/libs/katex.css" />
+    
   </head>
   <body>
       <header class="page-header">
@@ -35,9 +44,21 @@
           <p>
             Given that it is vitally important for companies to be able to check their data, it is also extremely important that there are cheap and easy solutions to check the contents of transportable databases without requiring expensive modelling software.
           </p>
+
+          <p>
+            Furthermore, it is of my opinion that it is totally unethical to have a paywall preventing an organisation/individual from reading their own data. I am no lawyer, but there may be grounds to suggest that this is even in violation of GDPR. Quoting from <a href="https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-data-portability/">ICO.org.uk</a>:
+          </p>
+          
+          <blockquote>
+              Where no specific format is in common use within your industry or sector, you should provide personal data using open formats such as CSV, XML and JSON. You may also find that these formats are the easiest for you to use when answering data portability requests.
+          </blockquote>
           
           <p>
-            In this article, I'll take you through a problem which has taken me 2 years to solve.
+            Since 'personal data' can be stored in a transportable database this may be of violation without an open format specification. Perhaps this is something that needs to be looked into further by Innovyze.
+          </p>
+
+          <p>
+            For all of the reasons above I deemed it necessary to build an open source library which can read InfoWorks and InfoNet Transportables. I started this project about 2.5 years ago, however soon after I started I hit a brick wall, until last week when I hit the jackpot.
           </p>
 
           <h1>Transportable database structure</h1>
@@ -60,7 +81,7 @@
               $(function(){
                 window.transportable = new Transportable("./libs/Transportable.icmt")
                 window.transportable.onLoad(function(){
-                  transportable.toFileViewer("#TDBEG1");
+                  window.transportable.toFileViewer("#TDBEG1");
                 })
               })
           </script>
@@ -73,22 +94,182 @@
           <h2>Investigating the raw files</h2>
 
           <p>
-            After the transportable database shown above is loaded in ICM it has the following database structure:
+            After the above transportable database shown is loaded in ICM it has the following database structure:
           </p>
+
           <script>
             $(function(){
               //window.transportable = new Transportable("./libs/Transportable.icmt")
               window.transportable.onLoad(function(){
-                transportable.toJsTree("#TransportablePreview1");
+                window.transportable.toJsTree("#TDBEG2");
               })
             })
           </script>
-          <div id="TransportablePreview1"></div>
+          <div id="TDBEG2"></div>
           
           <p>
-            Some great detail in the next section here also!
+            So somehow the file structure above is morphed into the transportable database structure. But the question is... How?
           </p>
 
+          <p>
+            If we look into the files we see that a transportable database item contains what appears to be a list of Parent and Child IDs, under <code>#Children</code> and <code>#Parent</code> keys. So let's expand these out and see what we are left with! You might also notice that some files contain an <code>ID</code> key, however this ID directly relates to the number in the name of the file, and doesn't relate to the IDs represented in <code>#Children</code> and <code>#Parent</code>.
+          </p>
+
+          <script>
+            $(function(){
+              if(!vis) return;
+              const tdb = window.transportable
+              tdb.onLoad(function(){
+                //Make links array
+                links = [];
+                tdb.items.forEach(function(item,index){
+                  if(item.isModelObject || item.isRootObject){
+                    const guid = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx".replace(/x/g,e=>"0123456789ABCDEF"[Math.floor(Math.random()*16)]);
+                    if(item.parent_id||item.child_ids){
+                      //Get parent links
+                      links.push(
+                        {from:item.parent_id, to:guid, label:item.zipName}
+                      );
+
+                      //Get children links
+                      item.child_ids.forEach(function(child_id){
+                        if(child_id) links.push(
+                          {from:guid, to:child_id, title:item.zipName}
+                        );
+                      });
+                    };
+                  };
+                });
+                
+                //Make nodes array
+                onodes = {};
+                links.forEach(function(link){
+                  onodes[link.from] = {id:link.from,title:link.from};
+                  onodes[link.to]   = {id:link.to,title:link.to};
+                });
+                nodes = Object.values(onodes).filter(e=>e.title!=undefined);
+                
+                //Make vis network
+                const visNodes = new vis.DataSet(nodes);
+                const visLinks = new vis.DataSet(links);
+                const container = $("#TDBEG3")[0];
+                const network = new vis.Network(container, {nodes:nodes,edges:links},{interaction:{hover:true}});
+                window.nodes = nodes;
+              });
+            });
+          </script>
+          <div id="TDBEG3" style="height:300px;"></div>
+
+          <p>
+            In the diagram, links represent the files which define connections. Hoverring over the link will tell you which file the link is defined in. The file which defines the link's ID is unknown however.
+          </p>
+
+          <p>
+            Ultimately, a particular link e.g. the link from the Transportable Database to the Master Group.
+          </p>
+
+          <pre>0 -> 433 -> 4272</pre>
+
+          <p>
+            Is split into 2 seperate trees.
+          </p>
+
+          <pre>0   -> ??? -> 4272</pre>
+          <p>and</p>
+          <pre>??? -> 433 -> ???</pre>
+          
+          <p>
+            It is possible to decipher this from the diagram because the Master Group has 25 children in both trees, and is the only object which indeed has 25 children. Thus these 2 must match and thus <code>0->433->4272</code> and the links to all other children can be made from here. However the same is not true for the children of the Asset Groups. All asset groups have 1 child so this trick cannot be used here.
+          </p>
+
+          <p>
+            In fact, it can be Mathematically proven that the ids of the parents and children are not sufficient for the production of a tree. Any node must define it's own id. After the id of the node is defined then either the parents or children may be defined.
+          </p>
+
+          <p>
+            Ultimately this means that we are missing some data. There must be some additional data stored regarding each zip item. At first, I thought it may be stored in <a href="https://blog.malwarebytes.com/101/2015/07/introduction-to-alternate-data-streams/">alternate data streams</a> attached to the zip items.
+          </p>
+          <p>
+            Next I assumed that the data was stored in the Wallaby 2 file. This file contains all data related to model/collection/distribution networks stored in the transportable database. However then I realised that databases could be created without any of these files.
+          </p>
+          <p>
+            My next idea was to look in the various blob files spread throughout the database. However as with the wallaby 2 files, transportable databases could be made without blob files yet still have complex structures.
+          </p>
+          <p>
+            At this point I stopped and proceded onto other projects... Recently, 2 years later, I revisited the project. I just so happened to have the following tree structure:
+          </p>
+
+          <!--< Transportable database validation objects >-->
+          <script>
+            $(function(){
+              const t_validation = new Transportable("./libs/Transportable Examples/Validations.icmt")
+              t_validation.onLoad(function(){
+                t_validation.toFileViewer("#TDBEG4");
+              })
+            })
+          </script>
+          <div id="TDBEG4"></div>
+
+          <p>
+            Within <code>AG1.DAT</code> the children string: <code>#Children,1,"(364,620)"</code> was present. It dawned on me that <code>620</code> was an extremely round number to land an ID on and that the difference was approximately 250. By taking the difference of the 2 IDs <code>620-364</code> we get <code>256</code>. To me, this set off alarm bells and if you've been programming for a while you'd likely agree. <code>256</code> or <code>2^8</code> is a really interesting number to seperate 2 unique IDs.
+          </p>
+
+          <p>
+            So let's assume all sequential IDs are seperated by 256. Let's try to verify this is the case with our first example. If we look into the data in MASG1.DAT (the Master group which contains many asset groups), we see children IDs as follows:
+          </p>
+
+          <pre>#Children,1,"(432,688,944,1200,1456,1712,2224,2480,2736,2992,3248,3504,3760,4016,4272,4528,4784,5040,5296,5552,5808,6064,6320,6576,7088)"</pre>
+
+          <p>
+            If we add 256 to each ID we get the next one as required.
+          </p>
+
+          <br>
+
+          <h2>Determining the ID</h2>
+
+          <p>
+              So it seems 256 is always used as a seperator but how do we determine what the ID of a particular file is? The formula I use is as follows:
+          </p>
+
+          <script>
+            $(function(){
+              katex.render("id = id_{type} + 256 \\times id_{cumulative}", $("#katex1")[0], {
+                  throwOnError: false
+              });
+            });
+          </script>
+          <center>
+              <div id="katex1"></div>
+          </center>
+
+          <p>
+            Ultimately the id depends on 2 parts of the file name:
+          </p>
+
+          <p>
+            <center>
+              <div style="display: inline-block; font-style: oblique;">
+                  <span style="background-color: rgb(235, 137, 137);float:left;padding:3px">AG</span>
+                  <span style="background-color: rgb(154, 247, 247);float:left;padding:3px">12</span>
+                  <span style="background-color: rgb(185, 185, 185);float:left;padding:3px">.DAT</span>
+              </div>
+            </center>
+          </p>
+          
+          <p>
+            The <span style="background-color: rgb(235, 137, 137);">red section</span> relates to <i>id<sub>type</sub></i> . This is a 1-to-1 representation with each model object type being attributed to it's own numeric <i>id<sub>type</sub></i> . The <span style="background-color: rgb(154, 247, 247);">blue section</span> is equal to <i>id<sub>cumulative</sub></i> . So in the case of <code>AG12.DAT</code> the type is <code>AG</code> which can be translated into the number <code>176</code>. So ultimately our equation becomes <code>id = 176+256*12 = 3248</code>. Now that you know how transportable databases work, you can verify this for yourself!
+          </p>
+
+          <h2>Open Source JavaScript Library</h2>
+          <p>
+            I have created an open source JavaScript library which implements an algorithm which allows the parsing of transportable databases in the browser and in desktop applications via NodeJS server. The source code is hosted on github.
+          </p>
+
+          <h2>Conclusion</h2>
+          <p>
+              You can view the source code 
+          </p>
       </main>
   </body>
 </html>

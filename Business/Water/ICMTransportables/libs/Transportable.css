@@ -1,15 +1,22 @@
+/*
+ Autoresizing for jstree icons (mainly for toJsTree() method.
+ */
 .jstree-themeicon {
     background-size:contain !important;
     background-repeat: no-repeat !important;
     background-position: center;
 }
+
+/*
+    File tree css
+    Table within a scroll div.
+    Table ensures even spread horizontally.
+*/
 .jsFileTree-Wrapper {
     height:300px;
     max-height:300px;
     overflow:scroll;
     width:100%;
-    
-    
 }
 .jsFileTree-Table {
     display:table;

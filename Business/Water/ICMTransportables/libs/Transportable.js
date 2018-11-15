@@ -1,3 +1,7 @@
+/* TODO LIST
+ * 1. Fix "include-upload" option. Currently refreshes do not work at all!
+ */
+
 //Ruby sorting method - Convenience wrapper around Array.prototype.sort()
 //Callback method provided is used to get the content to sort 
 Array.prototype.sort_by = function(getSortContent){
@@ -9,18 +13,24 @@ Array.prototype.sort_by = function(getSortContent){
  };
 
 class Transportable {
+    //Constructor for transportable database.
+    //You can either pass a file to this ctr or a file path.
+    //If a file path is given then a http request is made to get the file,
+    //then the default routine is called.
     constructor(pathOrFile){
         //loaded will be used to track whether the transportable
         //is ready for processing or not.
         this.loaded = false;
         this.dirty = false;
 
+        //If JSZip and JSZipUtils don't exist then we cannot use Transportable.js
         if(typeof(JSZip)=="undefined")     throw new Error("This library requires JSZip and JSZipUtils to be loaded")
         if(typeof(JSZipUtils)=="undefined") throw new Error("This library requires JSZip and JSZipUtils to be loaded")
         
         var This = this
         switch(typeof(pathOrFile)){
-            case "string": //path
+            //Assume a path
+            case "string":
                 JSZipUtils.getBinaryContent(pathOrFile, function(err, data) {
                     if(err) {
                         throw err;
@@ -28,17 +38,33 @@ class Transportable {
                     This._instanceFromArrayBuffer(data);
                 });
                 break;
+            //Assume (and test) File object.
             case "object":
                 if(pathOrFile.__proto__.constructor.name=="File"){
-                    This._instanceFromArrayBuffer(
-                        (new FileReader()).readAsArrayBuffer(pathOrFile)
-                    );
-                    break
+                    debugger;
+                    This._instanceFromFile(pathOrFile);
+                    break;
+                } else {
+                    throw new Error("Constructor argument of invalid object type. Must be of type string (filepath) or File")
                 }
             default:
                 throw new Error("Constructor argument of invalid type. Must be of type string (filepath) or File")
         }
     }
+
+    //Instantiate from file;
+    _instanceFromFile(file){
+        const This = this;
+        var reader = new FileReader();
+        reader.onload = function(ev){
+            var arrayBuffer = this.result;
+            This._instanceFromArrayBuffer(arrayBuffer);
+        }
+        reader.readAsArrayBuffer(file);
+    }
+
+    //Instantiate the transportable from an array buffer containing
+    //binary zip data.
     _instanceFromArrayBuffer(arrayBuffer){
         var This = this
         JSZip.loadAsync(arrayBuffer).then(function(zip) {
@@ -83,6 +109,7 @@ class Transportable {
         });
     }
 
+    //Creates the tree structure of the transportable database.
     _makeTree(items,callLoads){
         this.items = items;
         for(var i=0;i<items.length;i++){
@@ -112,8 +139,10 @@ class Transportable {
             };
         };
 
+        //Set as loaded
         this.loaded = true;
         
+        //Call onLoad functions
         if(callLoads){
             this._loadFunctions = this._loadFunctions ? this._loadFunctions : [];
             this._loadFunctions.forEach(func=>func(this));
@@ -121,7 +150,10 @@ class Transportable {
     }
 
     
-
+    //When onLoad is called, the passed function is stored.
+    //If the transportable is already loaded then func is called
+    //straight away. However if it is stored, the functions will be called
+    //after the transportable has been loaded.
     onLoad(func){
         if(this.loaded){
             func(this);
@@ -135,6 +167,7 @@ class Transportable {
     }
 
     toJsTree(element,options){
+        //Defaults:
         if(!options) options={};
         if(!element) element=this.treeElement;
         if(!element) return console.warn("No element selected in toJsTree() call.")
@@ -145,9 +178,12 @@ class Transportable {
         //Ensure to link back to transportable structure and individual transportable items.
         var This = this;
         var items = this.items.map(function(item){
-            //console.log(item);
+            //If item is ModelObject or RootObject then it is useful for the tree
             if(item.isModelObject || item.isRootObject){
+                //Get icon and type data
                 var luitem = Transportable.lookup[item.type.id];
+                
+                //Get icon
                 var icon;
                 if(luitem){
                     icon = luitem.icon;
@@ -155,6 +191,7 @@ class Transportable {
                     console.warn("No type entry for " + item.type.id)
                 };
 
+                //Create hard copy of TransportableItem in jsTree format
                 return {
                     id: item.id,
                     parent_id: item.parent_id,
@@ -166,29 +203,45 @@ class Transportable {
                     transportable:This
                 };
             };
-        }).filter(e=>e!=undefined);
+        }).filter(e=>e!=undefined); //Filter out undefined elements which aren't necessary for tree
+
+        //Loop over all items and assign connectivity.
         items.forEach(function(item){
             if(item.parent_id!=undefined){
                 var parent = items.filter(parent=>item.parent_id==parent.id)[0]
                 if(parent) parent.children.push(item);
             };
         });
+
+        //Get root item.
         var root = items.filter(e=>e.id==0)[0];
+
+        //Main wrapper containing upload button and all other controls.
+        const wrapper  = $(element);
+        const jsTreeEl = $("<div></div>");
+        wrapper.append(jsTreeEl);
 
         //Upload button option
         if(options["include-upload"]==true){
             var upload_element = $('<input type="file" />');
-            upload_element.drop(function(ev){
-                ev.preventDefault();
-                this.jsTree.data('jstree',false).empty(); //Destroy jsTree
-                var transportable = new Transportable(ev.transfer.files[0]); //New transportable from data
-                transportable.toJsTree(this.treeElement); //new tree.
-            });
-            $(element).append(upload_element);
+            upload_element.one("change",function(ev){
+                var file = upload_element[0].files[0];
+                This.loaded = false;
+                This._instanceFromFile(file);
+                This._loadFunctions = [];
+                This.onLoad(function(){
+                    This.jsTree.data('jstree',false).empty();    //Destroy jsTree.
+                    This.toJsTree(This.treeElement);
+                })
+            })
+            wrapper.append(upload_element);
         };
         
+
+
+        //Create jstree
         $.jstree.defaults.core.themes.variant = "large";
-        this.jsTree = $(element).jstree({
+        this.jsTree = jsTreeEl.jstree({
             'core':{
                 'data': root,
                 'themes' : {
@@ -202,10 +255,12 @@ class Transportable {
             ],
         });
         
+        //Return jsTree
         return this.jsTree;
     }
 
     toFileViewer(element,options){
+        //Defaults:
         if(!options) options={};
         if(!element) element=this.fileViewerElement;
         this.fileViewerElement=element;
@@ -232,15 +287,22 @@ class Transportable {
                 }
             }
         });
+
+        //This function will make a parent if it doesn't but should exist
         var makeParent = function(item_path){
+            //Get pathdata
             var pathData = /^(.+\/)?(.+\/)(.+)$/.exec(item_path);
             if(pathData==null) return undefined;
             var superparent = _dict[pathData[1]];
-            if(pathData[1]){
+
+            //If superparent path exists, but super parent doesn't create super parent
+            if(pathData[1] && !superparent){
                 var superparent = makeParent(pathData[1]+"__");
                 items.push(superparent);
                 _dict[superparent.path]=superparent;
-            }
+            };
+
+            //Create parent object
             var parent = {
                 _parent:  superparent,
                 text:     pathData[2].substr(0,pathData[2].length -1),
@@ -253,13 +315,19 @@ class Transportable {
                 }
 
             };
+
+            //Return parent object
             return parent;
         }
         
+        //Loop through all items,
         items.forEach(function(item){
+            //If parent exists in _dict, set it (prevents recursive parent creation from below...)
             if(!item._parent && _dict[item.data.item.zipParentPath]){
                 item._parent = _dict[item.data.item.zipParentPath];
             };
+
+            //if a parent should exist but doesn't create and assign it.
             if(!item._parent && item.path.includes("/")){
                 var parent = makeParent(item.path);
                 if(parent){
@@ -270,6 +338,8 @@ class Transportable {
                     console.warn("No parent created for " + item.path);
                 };
             } 
+
+            //If item._parent exists, assign item to it's children.
             if(item._parent){
                 item._parent.children.push(item);
             };
@@ -308,6 +378,7 @@ class Transportable {
         tree.addClass("jsFileTree-Tree");
         content.addClass("jsFileTree-Content");
         
+        //Create jsTree control
         this.jsFileTree = tree.jstree({
             'core':{
                 'data': this.fileTree,
@@ -322,6 +393,7 @@ class Transportable {
             ],
         });
 
+        //When a jsTree element is selected, set the value of content textarea
         tree.on("select_node.jstree",function(e,data){
             content.val(data.node.data.contents)
         });
@@ -332,43 +404,55 @@ class Transportable {
 //A simple transportable item wrapper which can be used and extended
 //For more type specific situations.
 class TransportableItem{
+    //Constructor from:
+    //@argument (Transportable) transportable - Transportable database of this item. This parameter is only used to set parent_transportable property.
+    //@argument (zipItem)       item          - ZipItem found within a transportable database
+    //@argument (string)        data          - Data contained within ZipItem.
     constructor(transportable,item,data){
         var This = this; //incase needed for nesting
+
+        //Link to various objects
         this.parent_transportable = transportable;
-        this.isDir = item.name[item.name.length-1]=="/";
+        this.zipItem              = item;
         this.data = data || "";
+
+        //Is this item a folder?
+        this.isDir = item.name[item.name.length-1]=="/";
         
-        
+        //Set various path data
         var pathData = /^(.+\/)?([^\/]+)\/?$/.exec(item.name);
         this.zipPath       = item.name;
         this.zipParentPath = pathData[1];
         this.zipName       = pathData[2];
-        this.zipItem       = item;
+
         
+        //Test if this is a deleted model object (we have virtually nothing to do with these).
         this.isDeletedObject   = /^.*XXX\d*\.[Dd][Aa][Tt]$/.test(item.name);
         if(this.isDeletedObject){
             this.isMapped = true;
             return;
         } 
 
+        //Various categorisation properties
         this.isModelObject     = /^([A-Z]+)(\d+)\.[Dd][Aa][Tt]$/.test(item.name);
         this.isModelObjectPart = /^([A-Z]+)(\d+)(\w+)?\.[Dd][Aa][Tt]$/.test(item.name)[3] != undefined;
         this.isRootObject      = /^RootObjects\.Dat$/i.test(item.name);
         this.isGlobal          = /^Globals\.Dat$/i.test(item.name);
         this.isMapped          = this.isModelObject || this.isModelObjectPart || this.isRootObject || this.isGlobal;
         
-        
-
+        //Getting ID and Type data. This is only relevant for model objects and their constituant parts.
         if(this.isModelObject||this.isModelObjectPart){
             var cid = /^([A-Z]+)(\d+)(\w*)\.[Dd][Aa][Tt]$/.exec(item.name);
             this.cumulative_id = parseInt(cid[2]);
             this.type = {};
             this.type.id   = cid[1];
+            
             var lv=Transportable.lookup[this.type.id]
             this.type.name = lv == undefined ? "Unknown" : lv.type;
             this.type.iid  = lv == undefined ? -5        : lv.id;
             this.id = this.type.iid + this.cumulative_id * 256; //NaN if lookup doesn't match ID
             
+            //When this is a model object, get content and get parent id
             if(this.isModelObject){
                 this.parent_id = /#Parent,1,(\d+)/.exec(data)[1];
                 this.parent_id = this.parent_id=="" ? 0 : parseInt(this.parent_id);
@@ -382,16 +466,20 @@ class TransportableItem{
             };
         };
         
+        //When root object or model object, prepare children.
+        //Further data will be set later via this.meta
         if(this.isModelObject || this.isRootObject){
             this.children = [];
         };
 
+        //Create meta from ModelObject, Global and RootObject data.
         if(this.isModelObject || this.isGlobal || this.isRootObject){
             //Loop over all lines of data and assign all data to META
             this.meta = {};
             this.data.split("\n").forEach(function(line){
                 var rdata = /(.+),([10]),(.+)/.exec(line);
                 if(rdata!=null){
+                    //Get and set value if value exists
                     var name = rdata[1];
                     var value = rdata[3];
                     if(rdata[2]="1"){
@@ -399,29 +487,39 @@ class TransportableItem{
                     };
                 };
             });
+
+            //Set name of item, if available
             if(this.meta.Name){
                 this.name = this.meta.Name;
             };
         }
 
+        //Get child IDs (will be used to instantiate children array)
         if(this.isRootObject || this.isModelObject){
             this.child_ids = /#Children,1,"?\((.*)\)"?/.exec(data)[1].split(",").map(s=>parseInt(s));
         };
+
+        //Root object data
         if(this.isRootObject){
             this.id=0;
             this.meta.Name = "Transportable Database";
             this.type = {"id":"TRANSPORTDB"};
         };
+
+        //Global data:
         if(this.isGlobal){
             this.id=-1
         };
+        
+        //If not mapped then ID forced to -2
         if(!this.isMapped){
             this.id=-2;
         };
     }
 }
 
-//All icons have been exported from IWTreeCtrl.dll
+//Icons and type info.
+//  All icons info have been exported from IWTreeCtrl.dll
 Transportable.lookup = {
     "MASTERDB":{
         "type":"Master Database",
@@ -728,7 +826,4 @@ Transportable.lookup = {
     "SPECIAL-FOLDER":{
         "icon":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA2klEQVR42o2SMQoCMRBFczUPYWVl5SG8gjYeQNjKAwgKVlaiIIKF2ChoabFaCCqCRH7YH2aTjGbg4SYz82Z20RgRx/XIptjMB57VuGvbrYY1YaDw8yp/89g5pkVHF7yvZweetQ1AJHGCagIE0UZVTt0CdlngBUHjs1w4VAGS+HVnIWBjlgCEG1GsCvBhZAHPqemg6DVjARL3wywpwL2kJmDzZT+0t+3EFciN2IQ8qQnwPhRIKOH5tOx7IgEmyAI04D5bwIn8x6GIAtn4VyDJFiBwkSJboIUmZv4LSwOi1pw38i8AAAAASUVORK5CYII="
     }
-    
-    
-  
   }
