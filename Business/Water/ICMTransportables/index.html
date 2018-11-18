@@ -17,8 +17,8 @@
     <link rel="stylesheet" href="./libs/libs/jstree.css" />
 
     <!--<Include Transportable parser + css>-->
-    <script src="./libs/Transportable.js"></script>
-    <link rel="stylesheet" href="./libs/Transportable.css" />
+    <script src="./libs/InnovyzeTransportable.js"></script>
+    <link rel="stylesheet" href="./libs/InnovyzeTransportable.css" />
 
     <!--<Include Transportable parser + css>-->
     <script src="./libs/libs/vis.min.js"></script>
@@ -101,7 +101,7 @@
             $(function(){
               //window.transportable = new Transportable("./libs/Transportable.icmt")
               window.transportable.onLoad(function(){
-                window.transportable.toJsTree("#TDBEG2");
+                window.transportable.toTreeViewer("#TDBEG2");
               })
             })
           </script>
@@ -263,12 +263,89 @@
 
           <h2>Open Source JavaScript Library</h2>
           <p>
-            I have created an open source JavaScript library which implements an algorithm which allows the parsing of transportable databases in the browser and in desktop applications via NodeJS server. The source code is hosted on github.
+            I have created an open source JavaScript library which implements an algorithm allowing you to read transportable databases in the browser, and in desktop applications with NodeJS server. The source code is hosted on github. Please see the repository readme for documentation regarding the API. I've tried to build it as flexible as possible. Let me know how you get on with it!
           </p>
+
+          <p>
+            I have also created a few demos to help demonstrate the library in action!
+          </p>
+
+          <div>
+            <style>
+              .demo-button {
+                transition: all 0.3s;
+                color: rgb(24, 191, 24);
+                border-radius: 7px;
+                border-color: rgb(24, 191, 24);
+                background: transparent;
+                margin: 0px 3px;
+                padding: 7px 14px;
+                outline: 0;
+                margin-left: 20px;
+                background-color:rgb(227, 255, 223);
+              }
+              
+              
+              .demo-button-tree:hover {
+                background-color:rgb(18, 112, 18);
+              }
+              .demo-button-file:hover {
+                background-color:rgb(18, 112, 18);
+              }
+              .demo-button-cli:hover {
+                background-color:rgb(18, 112, 18);
+              }
+              
+            </style>
+            <button class="demo-button demo-button-cli">
+                <svg height="16" class="octicon octicon-mark-github" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+              JavaScript library
+            </button>
+            <button class="demo-button demo-button-tree">Tree Viewer</button>
+            <button class="demo-button demo-button-file">File Viewer</button>
+            <button class="demo-button demo-button-cli">CLI  Viewer</button>
+          </div>
+          
+          <h3>Limitations and community contributions</h3>
+
+          <p>
+            Currently there are a few limitations with the library. The library itself is a basis ready for extension. Currently the library does not contain any specific objects. For example, it would be helpful if Runs related directly to the network, waste water, trade water profiles and rain events which they are inserting into simulations. Although this is easy to implement using the TransportableItem type system, specialised objects still should be created to handle these extra relationships, extending the library further.
+          </p>
+
+          <p>
+            You may have noticed that when it comes to layer lists, (e.g. <code>LL1.DAT</code>), the file which contains the parent and children data does not also include the layer list data itself. This data is stored in the <code>LL1Blob.DAT</code> binary file. I am still unaware of any format specification for reading these files, and they almost look encrypted. I have already tried decompressing them however it seems this cannot be done to the file as a whole. Ultimately the format of these files is still unknown to me, so if anyone has time to invest in decoding these files that would be fantastic!
+          </p>
+
+          <p>
+            Finally the numbatdata is in a format specified in the database itself "Wallaby 2 file". However through my googling I have not found any relational databases which refer to Wallaby 2. I have noticed that these files are likely SQLITE3 based, as numerous SQLITE temporary files are created while performing grid reports for instance. Otherwise, I am not aware of any specification for these files. If anyone ever has some time to give it a crack that'd be a great help!
+          </p>
+
+          <p>
+            Currently only reading from transportable databases has been implemented. Long term it would be great if we could write to transportable databases and ultimately have complete control over the contents of it, to fix it as required and download the newer version. If this is understood as a requirement then <code>TransportableItem</code> should be given a method which returns a file collection object of pre-written files required for import.
+          </p>
+
+          <p>
+            If you have any suggestions for improvements to the library feel free to raise them as an Issue <a href="https://github.com/sancarn/InnovyzeTransportableJS/issues">on github</a>. You can also branch the repository and make pull requests to get features intergrated into the library faster.
+          </p>
+
+          <p>So to recap here's the ToDo list:</p>
+
+          <li>Intergrated Type wrappers for different model objects</li>
+          <li>Blob parser</li>
+          <li>Wallaby 2 parser</li>
+          <li>Writing data to and downloading the new transportable database</li>
 
           <h2>Conclusion</h2>
           <p>
-              You can view the source code 
+              All in all, I have speant a fair amount of my free time over the past few weeks building this project. I really hope this ends up being helpful to others. I know at least from our own client's at <a href="https://www.pickeverard.co.uk/">PickEverard</a> this will be a fantastic tool for them and allow them to check transportable databases provided by ourselves and the other SMP consultants working for them!
+          </p>
+
+          <p>
+            Currently this has been entirely self funded. If you would like specific features implemented for your own processes then I am more than happy to discuss an arrangement which works for the both of us. Please feel free to <a href="sancarn.github.io/Business/Contact">get in contact</a>!
+          </p>
+          
+          <p>
+            Enjoy!
           </p>
       </main>
   </body>
