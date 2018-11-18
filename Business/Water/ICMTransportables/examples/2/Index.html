@@ -18,7 +18,6 @@
         <!--<Include Transportable parser + css>-->
         <script src="./../../libs/InnovyzeTransportable.js"></script>
         <link rel="stylesheet" href="./../../libs/InnovyzeTransportable.css" />
-        
         <style>
             * {
                 font-size: 1.3vw;
@@ -57,9 +56,9 @@
     <body>
         <div class="main-container">
             <div class="left-pane">
-                <h3>Online Transportable Database Viewer</h1>
+                <h3>Online Transportable File Viewer</h1>
                 <p>
-                    This demo demonstrates how easy it is to setup a viewer for transportable databases. Upload your transportable database by either dropping it into the window or clicking the upload button.
+                    This demo demonstrates how easy it is to setup a file viewer for a transportable databases. Upload your transportable database by either dropping it into the window or clicking the upload button.
                 </p>
                 <style>
                 .octicon-mark-github {
@@ -168,7 +167,7 @@
                                 var transportable = new Transportable(file);
                                 transportable.onLoad(function(tdb){
                                     //Convert wrapper to jsTree
-                                    tdb.toTreeViewer(wrapper);
+                                    tdb.toFileViewer(wrapper);
                                 });
                                 
                                 //Append to transportables array
