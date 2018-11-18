@@ -66,15 +66,15 @@
           <h2>Motivation</h2>
 
           <p>
-            Transportable databases are one of the easiest (and fundamental) methods hydraulic modellers use to share data. A consultant might submit their hydraulic models to the client via ICM transportables. Unfortunately, many clients do not have access to InfoWorks or InfoNet meaning that validation that the consultant has actually done the work is difficult.
+            Transportable databases are one of the easiest (and fundamental) methods of sharing InfoWorks ICM and InfoNet data. Quite often a consultant is required to submit their hydraulic models to the client as a transportable database. Unfortunately, many clients do not have access to InfoWorks or InfoNet meaning that validation that the consultant has actually done the work is difficult.
           </p>
 
           <p>
-            Given that it is vitally important for companies to be able to check their data, it is also extremely important that there are cheap and easy solutions to check the contents of transportable databases without requiring expensive modelling software.
+            Given that it is vitally important for companies to be able to check their data, it is also extremely important that there is a cheap and easy solution to check the contents of transportable databases without requiring expensive modelling software.
           </p>
 
           <p>
-            Furthermore, it is of my opinion that it is totally unethical to have a paywall preventing an organisation/individual from reading their own data. I am no lawyer, but there may be grounds to suggest that this is even in violation of GDPR. Quoting from <a href="https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-data-portability/">ICO.org.uk</a>:
+            Furthermore, I am no lawyer, but there may be grounds to suggest that transportable databases are even in violation of GDPR. Quoting from <a href="https://ico.org.uk/for-organisations/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-data-portability/">ICO.org.uk</a>:
           </p>
           
           <blockquote>
@@ -82,11 +82,11 @@
           </blockquote>
           
           <p>
-            Since 'personal data' can be stored in a transportable database this may be of violation without an open format specification. Perhaps this is something that needs to be looked into further by Innovyze.
+            Since 'personal data' can be stored in a transportable database, this format may be in violation of GDPR as long as it stays a proprietry format with no open specification.
           </p>
 
           <p>
-            For all of the reasons above I deemed it necessary to build an open source library which can read InfoWorks and InfoNet Transportables. I started this project about 2.5 years ago, however soon after I started I hit a brick wall, until last week when I hit the jackpot.
+            For all of these reasons, I deemed it necessary to build an open source library which can read InfoWorks and InfoNet Transportables. I started this project about 2.5 years ago, however soon after I started I hit a brick wall, until last week. Without further ado...
           </p>
 
           <h1>Transportable database structure</h1>
@@ -102,7 +102,7 @@
           </blockquote>
 
           <p>
-            At this point curiosity got the best of me and I opened the transportable database in 7-zip to take a peak inside. Below is an interactive example of an unzipped transportable database. All files which contain binary data have been removed for now.
+            At this point curiosity got the best of me and I opened the transportable database in 7-zip to take a peak inside. Below is an interactive example of an unzipped transportable database.
           </p>
 
           <script>
@@ -116,7 +116,7 @@
           <div id="TDBEG1"></div>
 
           <p>
-            Ever since I discovered that you could unzip a transportable, I began wondering which other data could be extracted from transportable databases into other applications. The possibilities seemed endless.
+            When I discovered that you could unzip a transportable, I began thinking about the possibilities! So many things appeared to become possible now that we could build our own transportable databases from scratch! So I began searching deeper into the database in an effort to discover what made it tick.
           </p>
 
           <h2>Investigating the raw files</h2>
@@ -207,18 +207,18 @@
           <pre>??? -> 433 -> ???</pre>
           
           <p>
-            It is possible to decipher this from the diagram because the Master Group has 25 children in both trees, and is the only object which indeed has 25 children. Thus these 2 must match and thus <code>0->433->4272</code> and the links to all other children can be made from here. However the same is not true for the children of the Asset Groups. All asset groups have 1 child so this trick cannot be used here.
+            It is possible to decipher this from the diagram because the Master Group has 25 children in both trees, and is the only object which has 25 children. Thus these 2 must match and thus <code>0->433->4272</code>. However the same is not true for the children of the Asset Groups. All asset groups have 1 child so this trick cannot be used here.
           </p>
 
           <p>
-            In fact, it can be Mathematically proven that the ids of the parents and children are not sufficient for the production of a tree. Any node must define it's own id. After the id of the node is defined then either the parents or children may be defined.
+            The ids of the parents and children are not sufficient for the production of a tree. Any node must define it's own id. After this is defined then either the parents or children may be defined.
           </p>
 
           <p>
-            Ultimately this means that we are missing some data. There must be some additional data stored regarding each zip item. At first, I thought it may be stored in <a href="https://blog.malwarebytes.com/101/2015/07/introduction-to-alternate-data-streams/">alternate data streams</a> attached to the zip items.
+            Ultimately this means that we are missing some data. There must be some additional data stored regarding the ID of each zip item. At first, I thought it may be stored in <a href="https://blog.malwarebytes.com/101/2015/07/introduction-to-alternate-data-streams/">alternate data streams</a> attached to the zip items. But after looking into it, it appeared this was not the case.
           </p>
           <p>
-            Next I assumed that the data was stored in the Wallaby 2 file. This file contains all data related to model/collection/distribution networks stored in the transportable database. However then I realised that databases could be created without any of these files.
+            Next I assumed that the data was stored in the Wallaby 2 file. This file contains all data related to model/collection/distribution networks stored in the transportable database. However then I realised that databases could be created without any of these files and thus this cannot be used to store this data.
           </p>
           <p>
             My next idea was to look in the various blob files spread throughout the database. However as with the wallaby 2 files, transportable databases could be made without blob files yet still have complex structures.
@@ -239,7 +239,7 @@
           <div id="TDBEG4"></div>
 
           <p>
-            Within <code>AG1.DAT</code> the children string: <code>#Children,1,"(364,620)"</code> was present. It dawned on me that <code>620</code> was an extremely round number to land an ID on and that the difference was approximately 250. By taking the difference of the 2 IDs <code>620-364</code> we get <code>256</code>. To me, this set off alarm bells and if you've been programming for a while you'd likely agree. <code>256</code> or <code>2^8</code> is a really interesting number to seperate 2 unique IDs.
+            Within <code>AG1.DAT</code> the children string: <code>#Children,1,"(364,620)"</code> was present. It dawned on me that <code>620</code> was an extremely round number to land an ID on and that the difference was approximately 250. By taking the difference of the 2 IDs <code>620-364</code> we get <code>256</code>. To me, this set off alarm bells and if you've been programming for a while, you'd likely agree. <code>256</code> or <code>2^8</code> is a really interesting number to seperate 2 unique IDs.
           </p>
 
           <p>
@@ -249,7 +249,7 @@
           <pre>#Children,1,"(432,688,944,1200,1456,1712,2224,2480,2736,2992,3248,3504,3760,4016,4272,4528,4784,5040,5296,5552,5808,6064,6320,6576,7088)"</pre>
 
           <p>
-            If we add 256 to each ID we get the next one as required.
+            If we add 256 to each ID we get the next one as required. (Note: <code>1968</code> and <code>6832</code> are missing from this ID list because these had been delted previously.)
           </p>
 
           <br>
@@ -291,11 +291,11 @@
 
           <h2>Open Source JavaScript Library</h2>
           <p>
-            I have created an open source JavaScript library which implements an algorithm allowing you to read transportable databases in the browser, and in desktop applications with NodeJS server. The source code is hosted on github. Please see the repository readme for documentation regarding the API. I've tried to build it as flexible as possible. Let me know how you get on with it!
+            I have created an open source JavaScript library which implements an algorithm allowing you to read transportable databases in the browser, and in desktop applications with NodeJS server. The source code is hosted on github. Please see the repository readme for documentation regarding the API. I've tried to build it in a manner which is as flexible as possible. Let me know how you get on with it!
           </p>
 
           <p>
-            I have also created a few demos to help demonstrate the library in action!
+            I have also created a few demos to help demonstrate the library in action! I suggest looking at the Tree Viewer first!
           </p>
 
           <div>
@@ -352,15 +352,15 @@
           <h3>Limitations and community contributions</h3>
 
           <p>
-            Currently there are a few limitations with the library. The library itself is a basis ready for extension. Currently the library does not contain any specific objects. For example, it would be helpful if Runs related directly to the network, waste water, trade water profiles and rain events which they are inserting into simulations. Although this is easy to implement using the TransportableItem type system, specialised objects still should be created to handle these extra relationships, extending the library further.
+            Currently there are a few limitations with the library. The library itself is a basis ready for extension. Currently the library does not contain any specific objects. For example, it would be helpful if Runs related directly to the network, waste water, trade water profiles and rain events which they are using for simulations. This should be easy to implement using the TransportableItem type system, but currently hasn't.
           </p>
 
           <p>
-            You may have noticed that when it comes to layer lists, (e.g. <code>LL1.DAT</code>), the file which contains the parent and children data does not also include the layer list data itself. This data is stored in the <code>LL1Blob.DAT</code> binary file. I am still unaware of any format specification for reading these files, and they almost look encrypted. I have already tried decompressing them however it seems this cannot be done to the file as a whole. Ultimately the format of these files is still unknown to me, so if anyone has time to invest in decoding these files that would be fantastic!
+            You may have noticed that when it comes to layer lists the file <code>LL1.DAT</code> does not include data regarding which layers are loaded in the layer list. This data is stored in the <code>LL1Blob.DAT</code> binary file. I am still unaware of any format specification for reading these files, and they almost look encrypted. I have already tried decompressing them however it seems this cannot be done to the file as a whole. Ultimately the format of these files is still unknown to me, so if anyone has time to invest in decoding these files that would be fantastic!
           </p>
 
           <p>
-            Finally the numbatdata is in a format specified in the database itself "Wallaby 2 file". However through my googling I have not found any relational databases which refer to Wallaby 2. I have noticed that these files are likely SQLITE3 based, as numerous SQLITE temporary files are created while performing grid reports for instance. Otherwise, I am not aware of any specification for these files. If anyone ever has some time to give it a crack that'd be a great help!
+            Finally the numbatdata is in a format specified in the database itself "Wallaby 2 file". However through my googling I have not found any relational databases which refer to Wallaby 2. I have noticed that these files are likely SQLITE3 based, as numerous SQLITE temporary files are created while performing grid reports, for instance. Otherwise, I am not aware of any specification for these files. If anyone has some time to give it a crack that'd be a great help!
           </p>
 
           <p>
@@ -368,7 +368,7 @@
           </p>
 
           <p>
-            If you have any suggestions for improvements to the library feel free to raise them as an Issue <a href="https://github.com/sancarn/InnovyzeTransportableJS/issues">on github</a>. You can also branch the repository and make pull requests to get features intergrated into the library faster.
+            If you have any other suggestions for improvements to the library feel free to raise them as an issue <a href="https://github.com/sancarn/InnovyzeTransportableJS/issues">on github</a>. You can also branch the repository and make pull requests to get features intergrated into the library faster.
           </p>
 
           <p>So to recap here's the ToDo list:</p>
@@ -380,11 +380,11 @@
 
           <h2>Conclusion</h2>
           <p>
-              All in all, I have speant a fair amount of my free time over the past few weeks building this project. I really hope this ends up being helpful to others. I know at least from our own client's at <a href="https://www.pickeverard.co.uk/">PickEverard</a> this will be a fantastic tool for them and allow them to check transportable databases provided by ourselves and the other SMP consultants working for them!
+              All in all, I have speant a fair amount of my free time over the past few weeks building this project. I really hope this ends up being helpful to others. I think this would be a great tool for many of our client's at <a href="https://www.pickeverard.co.uk/">PickEverard</a>!
           </p>
 
           <p>
-            Currently this has been entirely self funded. If you would like specific features implemented for your own processes then I am more than happy to discuss an arrangement which works for the both of us. Please feel free to <a href="sancarn.github.io/Business/Contact">get in contact</a>!
+            Currently this has been entirely self funded by myself. If you would like specific features implemented for your own processes then I am more than happy to come to an arrangement which works for the both of us. Please feel free to <a href="sancarn.github.io/Business/Contact">get in contact</a>!
           </p>
           
           <p>
