@@ -152,7 +152,7 @@
                 links = [];
                 tdb.items.forEach(function(item,index){
                   if(item.isModelObject || item.isRootObject){
-                    const guid = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx".replace(/x/g,e=>"0123456789ABCDEF"[Math.floor(Math.random()*16)]);
+                    const guid = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx".replace(/x/g,function(e){return "0123456789ABCDEF"[Math.floor(Math.random()*16)]});
                     if(item.parent_id||item.child_ids){
                       //Get parent links
                       links.push(
@@ -175,7 +175,7 @@
                   onodes[link.from] = {id:link.from,title:link.from};
                   onodes[link.to]   = {id:link.to,title:link.to};
                 });
-                nodes = Object.values(onodes).filter(e=>e.title!=undefined);
+                nodes = Object.values(onodes).filter(function(e){return e.title!=undefined});
                 
                 //Make vis network
                 const visNodes = new vis.DataSet(nodes);
