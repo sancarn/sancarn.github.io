@@ -1,6 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <title>Parsing ICM Standalone and Transportable databases</title>
+    
     <!--<Include Theme>-->
     <link rel="stylesheet" type="text/css" href="./css/Cayman.css"/>
 
@@ -30,6 +32,10 @@
     
     <!--< Footer data >-->
     <style>
+      html, body {
+          width:100%;
+          height:100%;
+      }
       .profile-card {
           display: inline-block;
           border-style:solid;
@@ -267,23 +273,23 @@
               });
             });
           </script>
-          <center>
+          <div style="text-align:center;">
               <div id="katex1"></div>
-          </center>
+          </div>
 
           <p>
             Ultimately the id depends on 2 parts of the file name:
           </p>
 
-          <p>
-            <center>
+          <div>
+            <div style="text-align:center;">
               <div style="display: inline-block; font-style: oblique;">
                   <span style="background-color: rgb(235, 137, 137);float:left;padding:3px">AG</span>
                   <span style="background-color: rgb(154, 247, 247);float:left;padding:3px">12</span>
                   <span style="background-color: rgb(185, 185, 185);float:left;padding:3px">.DAT</span>
               </div>
-            </center>
-          </p>
+            </div>
+          </div>
           
           <p>
             The <span style="background-color: rgb(235, 137, 137);">red section</span> relates to <i>id<sub>type</sub></i> . This is a 1-to-1 representation with each model object type being attributed to it's own numeric <i>id<sub>type</sub></i> . The <span style="background-color: rgb(154, 247, 247);">blue section</span> is equal to <i>id<sub>cumulative</sub></i> . So in the case of <code>AG12.DAT</code> the type is <code>AG</code> which can be translated into the number <code>176</code>. So ultimately our equation becomes <code>id = 176+256*12 = 3248</code>. Now that you know how transportable databases work, you can verify this for yourself!
