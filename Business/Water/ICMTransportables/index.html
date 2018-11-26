@@ -152,13 +152,13 @@
           </p>
 
           <script>
+            
             $(function(){
               if(!vis) return;
-              const tdb = window.transportable
-              tdb.onLoad(function(){
+              window.transportable.onLoad(function(){
                 //Make links array
                 links = [];
-                tdb.items.forEach(function(item,index){
+                window.transportable.items.forEach(function(item,index){
                   if(item.isModelObject || item.isRootObject){
                     const guid = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxx".replace(/x/g,function(e){return "0123456789ABCDEF"[Math.floor(Math.random()*16)]});
                     if(item.parent_id||item.child_ids){

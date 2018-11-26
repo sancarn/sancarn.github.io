@@ -4,6 +4,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /* TODO LIST
@@ -510,6 +512,11 @@ var Transportable = function () {
 
             return this.fileViewerInfo;
         }
+    }, {
+        key: 'getVersion',
+        value: function getVersion() {
+            return Transportable.versions[this.global.VersionGUID];
+        }
     }], [{
         key: 'fromArrayBuffer',
         value: function fromArrayBuffer(arrayBuffer) {
@@ -687,6 +694,19 @@ var TransportableItem = function () {
 
 
 Transportable.types = [];
+
+//Version history for transportable databases
+Transportable.versions = _defineProperty({
+    "{C1AA7612-F6DA-46ce-BE75-7AEF7640965C}": 5.0,
+    "{DAAC6FA7-0D69-4F31-8DEB-3B02D9032435}": 5.5,
+    "{F00FFC6D-96DB-41D1-B0FB-78AD415DEADB}": 6.0,
+    "{CCCA38C1-5615-4883-86FD-422D0C06E2F0}": 6.5,
+    "{FDE1819E-9138-4F62-9CB6-94C136EC2EF3}": 7.0,
+    "{DE74A25A-747E-4CFA-A625-1DB600EBFFD7}": 7.5,
+    "{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}": 8.0,
+    "{CBCFB6A9-1827-424B-BB09-F56BE669A1CB}": 8.5,
+    "{E0BDC1BA-874D-46D5-B10E-984F66C89C61}": 9.0
+}, '{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}', 9.5);
 
 //Icons and type info.
 //  All icons info have been exported from IWTreeCtrl.dll

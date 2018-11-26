@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--<Include Theme>-->
+        <link rel="stylesheet" type="text/css" href="./../../css/Cayman.css"/>
+
+        <!--<Include JSZip>-->
+        <script src="./../../libs/libs/jszip.min.js"></script>
+        <!--<Include JSZipUtils>-->
+        <script src="./../../libs/libs/jszip-utils.min.js"></script>
+        
+        <!--<Include JQuery>-->
+        <script src="./../../libs/libs/jquery.min.js"></script>
+
+        <!--<Include JSTree for visualtisation>-->
+        <script src="./../../libs/libs/jstree.min.js"></script>
+        <link rel="stylesheet" href="./../../libs/libs/jstree.css" />
+
+        <!--<Include Transportable parser + css>-->
+        <script src="./../../libs/InnovyzeTransportable.js"></script>
+        <link rel="stylesheet" href="./../../libs/InnovyzeTransportable.css" />
+        
+        <style>
+            html, body {
+                width:100%;
+                height:100%;
+            }
+            .main-container {
+                width:100%;
+                height:100%;
+                display:table;
+            }
+            .left-pane {
+                display:table-cell;
+                width: 31vw;
+                height:100%;
+                border-right-width: 2px;
+                border-right-color:blue;
+                border-right-style: solid;
+                padding:10px;
+                background-color:aliceblue;
+                font-size: 1.3vw;
+            }
+            .right-pane {
+                display:table-cell;
+                height:100%;
+                padding:10px;
+            }
+            h3 {
+                font-size:1.5vw;
+            }
+            p {
+                font-size:1.3vw;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="main-container">
+            <div class="left-pane">
+                <h3>Online Transportable Version Checker</h1>
+                <p>
+                    This demo demonstrates how easy it is to setup a version checker for transportable databases. Upload your transportable database by either dropping it into the window or clicking the upload button.
+                </p>
+                <style>
+                .octicon-mark-github {
+                    width:2vw;
+                }
+                </style>
+                <button onclick="window.open('https://github.com/sancarn/InnovyzeTransportableJS')">
+                    <svg height="16" class="octicon octicon-mark-github" viewBox="0 0 16 16" version="1.1" width="16" aria-hidden="true"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path></svg>
+                    Github repository
+                </button>
+                <span style="margin:10px;"></span>
+                <button onclick="window.location.href = '../../'">Back to article</button>
+                <p>
+                    Note: No data is transfered to a server while using this website, all data extraction happens directly on your computer. We can guarantee that this is GDPR friendly in this regard.
+                </p>
+                <p>
+                    All demos are licensed under the <a href="https://opensource.org/licenses/MIT">MIT license</a>. You can use this demo for commercial purposes.
+                </p>
+                <br>
+                <a href="https://www.linkedin.com/in/james--warren/">
+                    <style>
+                        .profile-card {
+                            display: inline-block;
+                            border-style:solid;
+                            padding:0.5vw;
+                            width:30vw;
+                        }
+                        .profile-container {
+                            display:table;
+                        }
+                        .profile-cell {
+                            display:table-cell;
+                            width:100%;
+                            height:100%;
+                        }
+                        .profile-text {
+                            width:23vw;
+                            overflow:auto;
+                        }
+                        .profile-img {
+                            background-image: url("https://sancarn.github.io/Business/James.jpg");
+                            background-size:contain;
+                            background-repeat: no-repeat;
+                            width:6vw;
+                        }
+                    </style>
+                    <div class="profile-card">
+                        <div class="profile-container">
+                            <div class="profile-cell profile-text">
+                                <b>Author:</b>
+                                <br>
+                                <b>James Warren, Software Engineer</b>
+                                <br>
+                                Leicester, United Kingdom
+                            </div>
+                            <div class="profile-cell profile-img"></div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!--< MAIN BODY OF EXAMPLE >-->
+            <div id="main-body" class="right-pane">
+                <style>
+                    #trees {
+                        padding:30px;
+                    }
+                </style>
+                <script>
+                    $(function(){
+                        const body = document.querySelector("#main-body")
+                        
+                        //Register "drop" event
+                        body.addEventListener("dragover",function(event){
+                            event.preventDefault();
+                        },false);
+                        body.addEventListener("drop",function(event){
+                            event.preventDefault();
+                            handleFiles(event.dataTransfer.files);
+                        },false);
+                        
+                        //Register input events
+                        const inputElement = document.querySelector("#input")
+                        inputElement.addEventListener("change",function(event){
+                            handleFiles(event.target.files);
+                        });
+                    });
+
+                    function handleFiles(files){
+                        if(!Transportable) throw new Error("Transportable class not found.");
+                        if(!$) throw new Error("JQuery not loaded.")
+                        if(!$.jstree) throw new Error("jsTree not loaded.")
+
+                        window.transportables = [];
+                        for(var i=0;i<files.length;i++){
+                            var file = files[i];
+                            
+                            //If is ICMT:
+                            if(/\.icmt$/i.test(file.name)){
+                                //Create a wrapper element inside trees
+                                const trees = $("#trees");
+                                
+                                //Instatiate transportable on files
+                                var transportable = new Transportable(file);
+                                transportable.onLoad(function(transportable){
+                                    //Convert wrapper to jsTree
+                                    var wrapper = $("<p></p>");
+                                    trees.append(wrapper);
+                                    wrapper.text(transportable.name + " - version: " + transportable.getVersion());
+                                });
+                            };
+                        };
+                    };
+                </script>
+                
+                <!--< Input Button >-->
+                <input id="input" type="file" multiple accept=".icmt"/>
+
+                <!--< Js Tree zone >-->
+                <div id="trees"></div>
+
+            </div>
+        </div>
+    </body>
+</html>
