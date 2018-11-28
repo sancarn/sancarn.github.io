@@ -147,7 +147,7 @@
                 </style>
                 <script>
                     window.transportables = [];
-                    window.transportables.eachTDB = function(callback){
+                    window.transportables.eachTDB = function(callback,then){
                         //List of files
                         const files = $("#input")[0].files;
                         
@@ -162,24 +162,34 @@
 
                         //callback to be added to tdb.onLoad
                         const func = function(transportable) {
+                            //If transportable exists,call callback and store results
                             if(transportable){
-                                result = callback(transportable)
-                                if(result){
-                                    results.push(result);
+                                if(callback){
+                                    result = callback(transportable);
+                                    if(result!=undefined){
+                                        results.push(result);
+                                    };
                                 };
                             };
+                            
+                            //Ensure reference is destroyed post-callback to save memory.
+                            transportable=null;
+                            
+                            //If there are files, load a file, else call `then` callback.
                             if(aFiles.length>0){
                                 var file = aFiles.pop();
                                 var tdb = new Transportable(file);
                                 tdb.onLoad(func);
+                            } else {
+                                if(then){
+                                   then(results); 
+                                };
                             };
                         };
                         
                         //Call the callback with no parameter
                         func();
-
-                        window.results = results;
-                    }
+                    };
 
                     window.onload = function(){
                         const body = document.querySelector("#main-body")
