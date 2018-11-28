@@ -146,6 +146,41 @@
                     }
                 </style>
                 <script>
+                    window.transportables = [];
+                    window.transportables.eachTDB = function(callback){
+                        //List of files
+                        const files = $("#input")[0].files;
+                        
+                        //files to array
+                        var aFiles = []
+                        for(var i=0;i<files.length;i++){
+                            aFiles.push(files[i])
+                        }
+                        
+                        //array of results
+                        var results=[]
+
+                        //callback to be added to tdb.onLoad
+                        const func = function(transportable) {
+                            if(transportable){
+                                result = callback(transportable)
+                                if(result){
+                                    results.push(result);
+                                };
+                            };
+                            if(aFiles.length>0){
+                                var file = aFiles.pop();
+                                var tdb = new Transportable(file);
+                                tdb.onLoad(func);
+                            };
+                        };
+                        
+                        //Call the callback with no parameter
+                        func();
+
+                        window.results = results;
+                    }
+
                     window.onload = function(){
                         const body = document.querySelector("#main-body")
                         
@@ -169,36 +204,42 @@
                         if(!Transportable) throw new Error("Transportable class not found.");
                         if(!$) throw new Error("JQuery not loaded.");
                         if(!$.jstree) throw new Error("jsTree not loaded.");
-                        
+
                         const cons = $(".console").console();
-                        cons.warn("Please wait while we load the transportables...");
-                        window.transportables = [];
+                        
                         const numFiles = files.length;
-                        var proccessedFiles = 0;
-                        for(var i=0;i<numFiles;i++){
-                            var file = files[i];
-                            
-                            //If is ICMT:
-                            if(/\.icmt$/i.test(file.name)){
-                                //Create a wrapper element inside trees
-                                const trees = $("#trees");
-                                var wrapper = $("<div></div>");
-                                trees.append(wrapper);
+                        
+                        //Only process files if instantImport is checked.
+                        if($("#instantImport")[0].checked){
+                            cons.warn("Please wait while we load the transportables...");
+                            var proccessedFiles = 0;
+                            for(var i=0;i<numFiles;i++){
+                                var file = files[i];
                                 
-                                //Instatiate transportable on files
-                                var transportable = new Transportable(file);
-                                
-                                transportable.onLoad(function(){
-                                    proccessedFiles++;
-                                    console._log({proccessedFiles,numFiles});
-                                    if(proccessedFiles==numFiles){
-                                        cons.info("Transportable databases have been processed. Ready for commands.");
-                                        cons.info("First type \"transportables\". Then you can try more advanced scripts. E.G.");
-                                        cons.log("transportables.forEach(function(transportable){\n\tconsole.log(transportable.name);\n\ttransportable.items.forEach(function(item){\n\t\tif(item.name) console.log(\"- \" + item.name);\n\t});\n});")
-                                    }
-                                })
-                                window.transportables.push(transportable);
+                                //If is ICMT:
+                                if(/\.icmt$/i.test(file.name)){
+                                    //Create a wrapper element inside trees
+                                    const trees = $("#trees");
+                                    var wrapper = $("<div></div>");
+                                    trees.append(wrapper);
+                                    
+                                    //Instatiate transportable on files
+                                    var transportable = new Transportable(file);
+                                    
+                                    transportable.onLoad(function(){
+                                        proccessedFiles++;
+                                        console._log({proccessedFiles,numFiles});
+                                        if(proccessedFiles==numFiles){
+                                            cons.info("Transportable databases have been processed. Ready for commands.");
+                                            cons.info("First type \"transportables\". Then you can try more advanced scripts. E.G.");
+                                            cons.log("transportables.forEach(function(transportable){\n\tconsole.log(transportable.name);\n\ttransportable.items.forEach(function(item){\n\t\tif(item.name) console.log(\"- \" + item.name);\n\t});\n});")
+                                        }
+                                    })
+                                    window.transportables.push(transportable);
+                                };
                             };
+                        } else {
+                            cons.info("Files loaded in asyncronous mode. Use:\n\n  transportables.eachTDB(function(transportable){\n    //function body\n  })\n\nto handle each database one at a time.");
                         };
                     };
                 </script>
@@ -250,6 +291,9 @@
                 
                 <!--< Input Button >-->
                 <input id="input" type="file" multiple accept=".icmt"/>
+
+                <!--< Instant import >-->
+                <input id="instantImport" type="checkbox" checked="checked"/>Load files on input.
 
                 <!--< Js Tree zone >-->
                 <div class="console"></div>
