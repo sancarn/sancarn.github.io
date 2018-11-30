@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+    <head>
+        <title>HTML Overlay</title>
+
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.20.1/vis.js"></script>
+        
+        <style type="text/css">
+            #network {
+            width: 600px;
+            height: 600px;
+            border: 1px solid lightgray;
+            }
+
+            .overlay {
+                position: absolute;
+            pointer-events: none;
+            }
+
+            #html {
+                font-family: sans-serif;
+                color: #cccccc;
+                background-color: #0000aa;
+            }
+
+            #html img {
+                width: 100px
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="network"></div>
+        <div id='html' draggable='true' class='overlay'>
+            <table><tr><td>
+                <img src="http://www.rd.com/wp-content/uploads/sites/2/2016/02/03-train-cat-come-on-command.jpg">
+            </td><td>
+                Puss the Cat<br>
+                Title: Your Master<br>
+                ID: 1 Boss: True
+            </tr></table>
+        </div>
+    </body>
+</html>
+
+<script type="text/javascript">
+
+var container = document.getElementById('network');
+
+var nodes = [
+  {id: 1, label: 'ellipse' },
+  {id: 2, shape: 'box' },
+];
+
+var edges = [
+  {from: 1, to: 2},
+];
+
+
+var data = {
+  nodes: nodes,
+  edges: edges
+};
+
+
+var options = {
+ edges: {
+   length: 250,
+ },
+};
+
+
+function getNode(nodeId) {
+  var item;
+  for (var n in data.nodes) {
+    var tmp = data.nodes[n];
+    if (tmp.id === nodeId) {
+      item = tmp;
+      break;
+    }
+  }
+
+  return item;
+}
+
+
+function hideNode(nodeId) {
+  var item = getNode(nodeId);
+  if (item === undefined) return;
+
+  // Make the actual node invisible
+  item.color = {
+    border: 'RGBA(0,0,0,0)',
+    background: 'RGBA(0,0,0,0)',
+    highlight: {
+      border: 'RGBA(0,0,0,0)',
+      background: 'RGBA(0,0,0,0)'
+    },
+  }
+}
+
+
+function initSizes(elementId, nodeId) {
+  var element = document.getElementById(elementId);
+  var item = getNode(nodeId);
+  if (item === undefined) return;
+
+  item.widthConstraint = element.clientWidth;
+  item.heightConstraint = element.clientHeight;
+  hideNode(nodeId);
+}
+
+
+function placeOverlay(elementId, nodeId) {
+  var pos = network.getPositions([nodeId]);
+  var dom_coords = network.canvasToDOM({x:pos[nodeId].x,y:pos[nodeId].y});
+  var element = document.getElementById(elementId);
+  element.style.left = '' + (dom_coords.x - element.clientWidth/2 ) + 'px';
+  element.style.top  = '' + (dom_coords.y - element.clientHeight/2) + 'px';
+}  
+
+initSizes('html', 2);
+
+var network = new vis.Network(container, data, options);
+
+network.on("afterDrawing", function (ctx) {
+  placeOverlay('html', 2);
+});
+</script>
