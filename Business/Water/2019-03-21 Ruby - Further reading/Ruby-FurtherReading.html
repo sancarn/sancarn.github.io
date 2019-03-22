@@ -1,0 +1,217 @@
+<html>
+  <head>
+    <!-- https://highlightjs.org/usage/ -->
+    <link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+    <style>
+      html,body {
+        font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        width:100%;
+        height:100%;
+        line-height: 1.5em;
+        background-color: #fcfcfc;
+      }
+      h1 {
+        font-size: 55px;
+        color:#aa0000;
+        display:block;
+      }
+      h2 {
+        font-size: 35px;
+        color:#aa0000;
+      }
+      quote{
+        font-size: 20px;
+        background: #f9f9f9;
+        border-left: 10px solid #ccc;
+        margin: .5em 10px;
+        padding: 0 10px;
+        quotes: "\201C""\201D""\2018""\2019";
+        padding: 10px 20px;
+        line-height: 1.4;
+      }
+
+      quote:before {
+        content: open-quote;
+        display: inline;
+        height: 0;
+        line-height: 0;
+        left: -10px;
+        position: relative;
+        top: 30px;
+        color: #ccc;
+        font-size: 3em;
+      }
+      code {
+        line-height: 1.2em;
+      }
+
+      container {
+        width:80%;
+        margin:10%;
+        margin-top:3%;
+        display:block;
+      }
+    </style>
+  </head>
+  <body>
+    <container>
+      <h1>
+        Ruby in ICM - Further reading
+      </h1>
+      <p>
+        On 12th March 2019 <a href="https://www.linkedin.com/in/lukepbutler">Luke Butler</a> shared a presentation titled Model builds using Ruby in Infoworks WS Pro and Exchange. He presented this at Innovyze's user group conference, which I was unfortunately unable to attent. Thankfully however he posted the presentation for us all to read. Thanks Luke!
+      </p>
+      <!--iframe src="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:6513800275139137536" height="510" width="504" frameborder="0" allowfullscreen=""></iframe>-->
+      <p>
+        As everyone by now knows, I'm a bit of a Ruby enthusiast so this did intrigue me, and I had some further notes / corrections that I wanted to add onto his presentation as 'further reading'.
+      </p>
+      <h2>
+        UI vs Exchange
+      </h2>
+      <p>
+        In the first slide Luke covers a brief overview comparing the different versions of Ruby, UI mode and Exchange. In the presentation he claims:
+      </p>
+      <quote>
+        With the exception of selection lists the (Ruby)UI does not have access to the database tree.
+      </quote>
+      <p>
+        This is half true. the RubyUI engine actually does have limited access to the database tree. In the past I have demonstrated already that you can build <a href="https://gist.github.com/sancarn/3d22cf8cd80ea1f6b38b6d957e772e10">database tree scrapers</a> in ICM, which fully function in UI mode.
+      </p>
+      <p>
+        The truth of the matter is that ICM allows you to fully navigate the database tree, but it only allows you to <b>open</b> selection lists. You also have no access to the properties of a model database object.
+      </p>
+      <p>
+        Unfortunately you wouldn't ever know this if you took the ICM Exchange documentation at face value. This line is almost word for word what the documentation itself says. That doesn't prevent it being untrue though. In the end, the very fact that you have access to selection lists means that you have to find them first. And the main way you find objects is by navigating the tree.
+      </p>
+      <p>
+        This actually leads me quite neatly onto the next topic of discussion. <b>The InfoWorks Ruby documentation</b>.
+      </p>
+      <h2>The InfoWorks Ruby Documentation</h2>
+      <p>
+        Unfortunately, InfoWorks doesn't have the best documentation in the world. For a start there are many undocumented Ruby methods found in the InfoWorks documentation. Here are some examples of undocumented methods:
+      </p>
+      <pre><code class="ruby">
+        #Bookmarks!
+        net = WSApplication.current_network
+        spat = WSSpatialBookmarks.new
+        spat.new_bookmark_from_selection "Cool bookmark",net,1,1
+        spat.save_to_network net
+
+        #There is also a method named bodge_for_Mark!
+        WSSimObject.new.bodge_for_Mark
+      </code></pre>
+      <p>
+        I have tried to create a full list of <a href="https://github.com/sancarn/Innovyze-ICM-Libraries/issues/2">undocumented methods here</a> however these lists are likely incomplete.
+      </p>
+      <p>
+        On top of this, version IDs are not given next to each method in the documentation. Ideally the documentation would specify the minimum version of all methods. Furthermore methods which are Exchange only are often not labeled as such, and some methods are even limited by whether you have a viewer or dongle!
+      </p>
+      <p>
+        I've tried to create a list of all methods and whether they are UI only, ICM Exchange Only, Enabled in both or Innovyze only. <a href="https://github.com/sancarn/Innovyze-ICM-Libraries/issues/3">You can find this list here</a>.
+      </p>
+      <p>
+        Furthermore not even all the tables have been added to the documentation! I found the table <c>hw_2d_sed_ic_polygon</c> completely lacked documentation in my own downloaded version of the Ruby documentation.
+      </p>
+      <p>
+        It is for this reason that I created [The InfoWorks ICM / InfoNet Ruby Scripting Interface - Community documentation](https://github.com/sancarn/Innovyze-ICM-Libraries/blob/master/docs/Infoworks-ICM/README.md#wsrowobject). This documentation can be modified by anyone and is, as far as I know, the most up to date source of information on ICM's Ruby.
+      </p>
+      <p>
+          That being said, be aware that this documentation needs some serious work. I've already invested several weekends trying to clean up this documentation and it's still a mess in my opinion. Perhaps with more contributors that will change though.
+      </p>
+      <h2>Is Ruby really infinitely flexible?</h2>
+      <p>
+        Okay so here are the tough hitting questions. In the presentation Luke states a quote directly from the InfoWorks exchange documentation reading the following:
+      </p>
+      <quote>
+        Important note - users must note that the flexible nature of the Ruby scripting language means that the language is almost infinitely flexible.
+      </quote>
+      <p>
+        This really is a marketing trap. Why even state that it's <b>almost</b> infinitely flexible if it isn't? Truth be told, every language is "infinitely flexible"... <b>If you have the time to invest into it</b>. But by the same token,some languages are much more flexible than others. Don't get me wrong, I adore Ruby, but C will always be more flexible than Ruby. Why? Because Ruby is interprated and C is compiled. C can interact seemlessly with the Operating System (and even override it). Ruby on the other hand has to go through at least 2 Virtual Machines before it is executed. For this reason it is far inferior to C. Of course Ruby balances this out by being easy to learn. 
+      </p>
+      <p>
+        Should Innovyze have picked another language? Not at all. I think Ruby is an ideal language for ICM. However, I also think Innovyze should release their C++ API publicly. Mainly because it will allow companies to truly integrate ICM into their processes and open up massive opportunities in ICM integration. But I digress... 
+      </p>
+      <h2>More on undocumented APIs</h2>
+      <p>
+        On slide 13 Luke mentions that there is no standard method of renaming nodes to XY14. This is again half true. An example of an undocumented API lies in the <c>hw_prefs</c> table of the <c>WSOpenNetwork</c> object.  <a href="https://gist.github.com/sancarn/91e4fcb8c64fdb57e2950a59064f4067">I actually started writing a post</a> about this last year but never got round to completing it.
+      </p>
+      <p>
+        Below is an example where I actually set the custom node naming of the current network.
+      </p>
+      <pre><code class="ruby">
+          net=WSApplication.current_network
+          net.transaction_begin
+            net.row_object("hw_prefs","geo_new_node_name_generator").memo = "Custom"
+            net.row_object("hw_prefs","geo_new_node_name_generator").write
+            net.row_object("hw_prefs","geo_new_node_name_pattern"  ).memo = "{G}{X3}{Y3}{C}"    
+            net.row_object("hw_prefs","geo_new_node_name_pattern"  ).write
+            net.row_object("hw_prefs","geo_new_node_name_gis_layer").memo = "[SHP] 1_km_Grid"
+            net.row_object("hw_prefs","geo_new_node_name_gis_layer").write
+            net.row_object("hw_prefs","geo_new_node_name_gis_field").memo = "PLAN_NO"
+            net.row_object("hw_prefs","geo_new_node_name_gis_field").write
+          net.transaction_commit
+          
+          #Check whether the layer is currently open, if so it should be in MapXtremeLayers
+          layers = WSApplication.current_network.row_object("hw_prefs","MapXtremeLayers").Memo
+          path = 'I:\Tools\JW\Resources\1_km_Grid.shp'
+          if layers.index(path) == nil
+            WSApplication.input_box("Please open the following table.","Layer not open.",path)
+          end
+      </code></pre>
+      <p>
+        After setting the network up with this information all new or imported nodes will have the name as given in the naming convention.
+      </p>
+      <p>
+        I assume the roughness from lookup table and elevation of objects is also possible by directly modifying the preferences table, however I don't quite know as I've never used these features in ICM/WS.
+      </p>
+      <h2>The biggest can of worms</h2>
+      <p>
+        So I left the biggest can of worms till last and this is the same can of worms that I think the last slide is hinting towards. Why are we even using InfoWorks software for Model Build?!
+      </p>
+      <p>
+        Seriously. We use InfoWorks ICM because we trust Innovyze software to produce accurate simulation results to reduce flooding. ICM is our engine that we use for predicting reality. I don't understand why we keep trying to cram a GIS package, and data management system into a simulation software at all.
+      </p>
+      <p>
+        For a start, all these added features are just grinding the software to a halt. Have you recently tried to open a large model database with a few years of model history? Have you also noticed that sometimes it takes up to 5 minutes to even open the database, let alone the model networks within the database? This is one example which makes no sense to me. It blows my mind how my transportable database parser, written in JavaScript, is faster than the native C++ parser used by ICM... It blows my mind that dragging a large set of sims into a grid volume report causes intense unskippable lag for 10 minutes before the user can even click "Okay, I'm ready to perform the volume report". It blows my mind that upon confirming that you want to create a volume report ICM once again freezes while it calculates the volume, instead of doing all that in a different thread.  
+      </p>
+      <p>
+        In the past Innovyze has told me that they're trying to move these jobs to the sim agent... Why? Just run the process in another thread! Why was it even built like this in the first place?
+      </p>
+      <p>
+        Recently I've been working on multiple projects across multiple different ICM versions. It is unfathomable to me that companies are using InfoWorks data formats to transport their data even though they know full well that there are massive backwards compatibility issues with the software. Versions of the software don't even know the version of software the ICMT, Snapshot etc. was built in! If I didn't have my <a href="https://sancarn.github.io/Business/Water/ICMTransportables/examples/4"> online transportable database version checker</a>, I would be at a complete loss as to which version my ICM database was even made in. So why on earth are water companies using this format?
+      </p>
+      <p>
+        I feel they are mostly ignorant to these issues... So they end up walking into the trap where a consultant supplies data in a later version and then they can't even open the data provided, so they have to upgrade, so they need Innovyze support, and it all ends up being a big waste of everybodies time...
+      </p>
+      <p>
+        Now bare in mind, I don't think this is anyone's fault per se. I think it is quite clear that InfoWorks software was never designed for large models or massive simulations, and I think this is mostly because InfoWorks is legacy software. But I think it's really time that water companies step out of the closet and get truly transportable data.
+      </p>
+      <h2>A true transportable</h2>
+      <h3>What is a true transportable?</h3>
+      <p>
+        In my opinion, a real transportable format would be one that is completely open source, easy to read manually, and easy to understand. Formats like JSON and XML are ideal candidates for these.
+      </p>
+      <h3>Have this script for free</h3>
+      <code>
+        <!-- Export -->
+      </code>
+      <h3>And this one also</h3>
+      <code>
+        <!-- Import -->
+      </code>
+      <h3>And take back your freedom.</h3>
+
+      <p>
+        P.S. if you want some help with manually reading the format let me know.
+      </p>
+    </container>
+  </body>
+</html>
+
+# 
+
+
+
