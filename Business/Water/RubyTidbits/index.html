@@ -1,0 +1,62 @@
+<html>
+  <body>
+    <h1>Ruby - Tidbits</h1>
+    <p>
+      Some small awesome features of Ruby scripting language (especially for InfoNet and InfoWorks)
+    </p>
+    <h2>Use map with row_object_collections!</h2>
+    
+    <p>
+      Generally row object collections are a lot faster to deal with as they only hold a reference to a value and not the data itself. However sometimes they can be frustrating to use, because they don't have common Ruby functions like <code>map</code>,<code>select</code> etc. For some methods we have built in methods to deal with this. For example:
+    </p>
+    <pre><code>
+      WSOpenNetwork#row_object_collection   #collection
+      WSOpenNetwork#row_objects             #array
+      
+      WSNodeObject.us_links                 #collection
+      WSNodeObject.navigate("us_links")     #array
+    </pre></code>
+    <p>
+      But in some examples there is no alternative. E.G.
+    </p>
+    <pre><code>
+      WSOpenNetwork#row_object_collection_selection   #collection
+    </pre></code>
+    <p>
+      Recently I discovered a way of obtaining these methods on any RowObjectCollection object! Here's how! We call the <code>enum_for</code> method on the parent object and parse in the symbol for the each method:
+    </p>
+    <pre><code>
+      new = WSApplication.current_network
+      
+      net.row_object_collection_selection("cams_cctv_survey")                   #Collection
+      net.row_object_collection_selection("cams_cctv_survey").enum_for(:each)   #Enumerator
+    </pre></code>
+    <p>
+      <code>Enumerator</code> gives us access to many more methods:
+    </p>
+    <pre><code>
+      inspect
+      size
+      each
+      each_with_index
+      each_with_object
+      next
+      rewind
+      find
+      entries
+      select
+      sort
+      sort_by
+      reject
+      grep
+      collect
+      map
+      reduce
+      group_by
+      ... and more! ...
+    </pre></code>
+    <h2>Next tidbit</h2>
+    
+    
+  </body>
+</html>
