@@ -1,0 +1,147 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="./css/cayman.css"/>
+    <style>
+      
+      img {
+        width:50%;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      img.small {
+        width:25%;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .center {
+        display: block;
+        
+        
+      }
+      table {
+        display:table-cell !important;
+        
+        position: relative !important;
+        margin: 0 auto;
+        /*
+        transform: translate(-40%, 0) !important;
+        left: 50% !important;
+        */
+      }
+      table th {
+        padding: 12px;
+        padding: 12px;
+        text-align: left;
+        background-color: rgb(157, 157, 157);
+        color: white;
+      }
+      table tr:nth-child(even){
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1 class="headerIgnore">Advice for building survey standards</h1>
+      <h2 class="headerIgnore">James Warren</h2>
+      <a href="../" style="color:white;"> &#11014; Previous page &#11014;</a>
+    </header>
+    
+    <article class="main-content">
+      <h2>Background</h2>
+
+      <p>
+      Recently, 27/03/2019, I've been working a lot with InfoNet databases. In one specific project, I am working with possibly the best and most detailed asset survey standard I have ever seen. This is fantastic and pros to the water company who've built this standard.
+      </p>
+      <p>
+      Unfortunately this standard is not "the British standard", and thus, infuriatingly the British contractor has been making a complete hash of the data and their surveys.
+      </p>
+      <p>
+      First they didn't even read the standards, as far as we can tell, and seemed to assume they were working with the British standards. Personally I think this is ridiculous... Especially given that this standard is actually an incredibly good read!
+      </p>
+      <p>
+      Without further ado, here's some advice for water companies to help design their survey standards to be robust:
+      </p>
+      <p>
+      * Have the surveyor log the status of the survey (e.g. Unable to raise, Unable to find, Unable to access, Surveyed, Partially surveyed, not surveyed).
+      </p>
+      <p>
+      * While checking the data for inconsistencies the above point can be extremely useful. For examle, If the surveyor is unable to raise a manhole, they should still record information including:
+        Ground Level
+        Cover Shape
+        X
+        Y
+      All of these fields should be filled with data. On the other hand, some fields would be impossible to fill in:
+        Type of manhole (e.g. CSO, Outfall, SPS, Bifurcation, ...)
+        Chamber depth, shape or dimensions
+        Shaft depth, shape or dimensions
+      Where as, if the surveyor was unable to find the manhole, then they won't be able to get any of the information. QA checks can then be built with this information in mind, check for logical inconsistencies and then flag them up for manual review.
+      </p>
+      <p>
+      * Do not have default blanks, have negatives! The specific standard we are currently working with specifies that gas type found in the manhole should be recorded. This is not standard as per STC25. This is all very well but unfortunately they didn't include the option 'None found'. For this reason future observers will not know whether the field was populated by the surveyor or inadvertantly not. This is especially critical when surveyors are dealing with differences in the spec that they know, STC25 in this case.
+      </p>
+      <p>
+      * Do not only detail that information should be inputted into your sewer records, specify that information should be inputted based on a priority system. I generally suggest making a table like the following:
+      </p>
+      
+      <div class="center">
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th>Field</td>
+                <th>cams_pipe::width</th>
+                <th>cams_pipe::material</th>
+                <th>cams_pipe::cover_level</th>
+                <th>...</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="background-color:#00ff00;">1</td>
+                <td>MH Survey</td>
+                <td>CCTV Survey</td>
+                <td>MH Survey</td>
+                <td>...</td>
+              </tr>
+              <tr>
+                <td style="background-color:#ffff00;">2</td>
+                <td>CCTV Survey</td>
+                <td>MH Survey</td>
+                <td>CCTV Survey</td>
+                <td>...</td>
+              </tr>
+              <tr>
+                <td style="background-color:#ff9900;">3</td>
+                <td>Flow Survey</td>
+                <td>Sewer Records</td>
+                <td>LIDAR Data</td>
+                <td>...</td>
+              </tr>
+              <tr>
+                <td style="background-color:#ff0000;">4</td>
+                <td>Flow Survey</td>
+                <td>Sewer Records</td>
+                <td>LIDAR Data</td>
+                <td>...</td>
+              </tr>
+              <tr>
+                <td>...</td>
+                <td>...</td>
+                <td>...</td>
+                <td>...</td>
+                <td>...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p>
+      Where 1 is the highest confidence data, and as the number increases, the confidence in that data source decreases. These confidence charts are especially useful when building models from sewer records and survey data.
+      </p>
+    </article>
+  </body>
+</html>
