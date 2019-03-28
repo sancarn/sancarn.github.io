@@ -70,7 +70,6 @@
     
     <article class="main-content">
       <h2>Background</h2>
-
       <p>
         Recently, 27/03/2019, I've been working a lot with InfoNet databases. In one specific project, I am working with possibly the best and most detailed asset survey standard I have ever seen. This is fantastic and pros to the water company who've built this standard.
       </p>
@@ -78,7 +77,13 @@
         Unfortunately this standard is not "the British standard", and thus, infuriatingly the British contractor has been making a complete hash of the data and their surveys.
       </p>
       <p>
-        I could complain about this at length, but for the sake of keeping this introduction short I will redact all details of the poor quality, standard uncomplient data and immense managemant failures of the contractor. The more important discussion to have is what can be improved! So without further ado here's some things to look out for:
+        I could discuss at length about the issues we have faced with this particular project, however, the more important discussion is how we can improve our standards and systems to overcome these obstacles! 
+      </p>
+      <p>
+        After all, often this surveyed information becomes widespread and part of vital waste water management decisions. From prediction of flooding, to flooding alleviation. There is no doubt this information is important, so we have to make sure our systems are as robust as possible to withstand, detect and correct human errors where they occur.
+      </p>
+      <p>
+        So without further ado here are some lessons we learnt while assessing this work:
       </p>
       <br>
       <hr>
@@ -86,7 +91,7 @@
       <h2>SURVEY STANDARDS</h2>
       <h3>Survey status</h3>
       <p>
-      Have the surveyor log the status of the survey (e.g. Unable to raise, Unable to find, Unable to access, Surveyed, Partially surveyed, not surveyed).
+        Have the surveyor log the status of the survey (e.g. Unable to raise, Unable to find, Unable to access, Surveyed, Partially surveyed, not surveyed).
       </p>
       <h3>Choices which display intent</h3>
       <p>
@@ -295,10 +300,23 @@
       </code></pre>
       <h3>Choice lists</h3>
       <p>
-        Although you can attach your choice lists to transportable databases, this also obfuscates whether the choice list is correct or not. Instead of attaching choice lists to the database, simply export the choice list CSV and supply it with the transportable database.
+        In InfoNet, choice lists contain lists of valid options for specific fields. They usually map short codes to descriptions. For instance, if you have a "Survey status field", you might have a choice list which allows the user to input "Unable to raise", "Unable to find", "Surveyed", etc. In the choice lists, these options are mapped to codes e.g. "UTR", "UTF", "S", etc. Which are imported into the database via the data input userform.
+      </p>
+      <p>
+        In InfoNet, you can attach your choice lists to transportable databases, however I would strongly advise against this. There is no way to check whether the choice list attached is correct or not without creating a new database and testing it.  Instead of attaching choice lists to the database, simply export the choice list CSV and supply it with the transportable database.
       </p>
       <p>
         Choice lists are vital if you want InfoNet/InfoWorks Validation Objects to work, so make sure your choice lists are correct before you send them to the contractor!
+      </p>
+      <h3>Connectivity issues</h3>>
+      <p>
+        It is fairly common for surveyors to accidentally insert the incorrect manhole reference into the raw survey card. When this data is inputted into the InfoNet database it is vital that the standard declares that connectivity of manholes is checked.
+      </p>
+      <p>
+        In numerous cases we picked up InfoNet databases with misconnections caused by surveyors incorrectly inputting a number. Validation algorithms should search for this also.
+      </p>
+      <p>
+        A technique we used to pull out these connectivity issues is by selecting all non-rising main pipes greater than 150 meters. This might extract some false negatives, however, it is always best to do a sense check, in order to make sure the data is correct.
       </p>
       <h2>Conclusion</h2>
       <p>
