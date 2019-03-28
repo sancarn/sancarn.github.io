@@ -1,6 +1,24 @@
 <html>
   <head>
+    <title>Survey and Data Standards - Lessons Learnt</title>
     <link rel="stylesheet" href="./css/Cayman.css"/>
+    <link rel="stylesheet" href="highlight/styles/default.css">
+    <script src="highlight/highlight.pack.js"></script>
+    
+    <script>
+      window.addEventListener("load",function(){
+        document.querySelectorAll("code").forEach(function(el){
+          if(el.attributes.removeSpace){
+            var n = el.attributes.removeSpace.value;
+            var replacer = new RegExp("\\n" + " ".repeat(n),"g");
+            el.innerHTML = el.innerHTML.replace(replacer,"\n");
+          };
+        });
+      });
+      
+      hljs.initHighlightingOnLoad();
+    </script>
+    <script src="js/ArticleNavigator.js"></script>
     <style>
       
       img {
@@ -45,7 +63,7 @@
 
   <body>
     <header class="page-header">
-      <h1 class="headerIgnore">Advice for building survey standards</h1>
+      <h1 class="headerIgnore">Survey and Data Standards - Lessons Learnt</h1>
       <h2 class="headerIgnore">James Warren</h2>
       <a href="../" style="color:white;"> &#11014; Previous page &#11014;</a>
     </header>
@@ -54,39 +72,39 @@
       <h2>Background</h2>
 
       <p>
-      Recently, 27/03/2019, I've been working a lot with InfoNet databases. In one specific project, I am working with possibly the best and most detailed asset survey standard I have ever seen. This is fantastic and pros to the water company who've built this standard.
+        Recently, 27/03/2019, I've been working a lot with InfoNet databases. In one specific project, I am working with possibly the best and most detailed asset survey standard I have ever seen. This is fantastic and pros to the water company who've built this standard.
       </p>
       <p>
-      Unfortunately this standard is not "the British standard", and thus, infuriatingly the British contractor has been making a complete hash of the data and their surveys.
+        Unfortunately this standard is not "the British standard", and thus, infuriatingly the British contractor has been making a complete hash of the data and their surveys.
       </p>
       <p>
-      First they didn't even read the standards, as far as we can tell, and seemed to assume they were working with the British standards. Personally I think this is ridiculous... Especially given that this standard is actually an incredibly good read!
+        I could complain about this at length, but for the sake of keeping this introduction short I will redact all details of the poor quality, standard uncomplient data and immense managemant failures of the contractor. The more important discussion to have is what can be improved! So without further ado here's some things to look out for:
+      </p>
+      <br>
+      <hr>
+      <br>
+      <h2>SURVEY STANDARDS</h2>
+      <h3>Survey status</h3>
+      <p>
+      Have the surveyor log the status of the survey (e.g. Unable to raise, Unable to find, Unable to access, Surveyed, Partially surveyed, not surveyed).
+      </p>
+      <h3>Choices which display intent</h3>
+      <p>
+        At no point should a surveyor be able to get away with inserting no data into the table apart from when they haven't surveyed this data.
       </p>
       <p>
-      Without further ado, here's some advice for water companies to help design their survey standards to be robust:
+        The specific standard we are currently working with specifies that gas type found in the manhole should be recorded. This is not standard as per STC25. Unfortunately they didn't include the option 'None found'. For this reason future observers won't be able to know whether the field was populated by the surveyor or inadvertantly not (which already happened in our case). This is especially critical when surveyors are dealing with standards they are not familiar with.
       </p>
       <p>
-      * Have the surveyor log the status of the survey (e.g. Unable to raise, Unable to find, Unable to access, Surveyed, Partially surveyed, not surveyed).
+        The whole point of this specific tip is to ensure that a standard is in place such that <b>all choices</b> on any particular field <b>display intent</b>.
+      </p>
+      <h3>Data input priority</h3>
+      <p>
+        Different people have different ideas about which data sources are 'more accurate' than other data sources. For example, typically British standards dictate that a manhole survey contains more accurate pipe width than that from a CCTV survey. However CCTV surveys give more accurate descriptions of pipe material than manhole surveys. This is a British standard but you may have other ideas.
       </p>
       <p>
-      * While checking the data for inconsistencies the above point can be extremely useful. For examle, If the surveyor is unable to raise a manhole, they should still record information including:
-        Ground Level
-        Cover Shape
-        X
-        Y
-      All of these fields should be filled with data. On the other hand, some fields would be impossible to fill in:
-        Type of manhole (e.g. CSO, Outfall, SPS, Bifurcation, ...)
-        Chamber depth, shape or dimensions
-        Shaft depth, shape or dimensions
-      Where as, if the surveyor was unable to find the manhole, then they won't be able to get any of the information. QA checks can then be built with this information in mind, check for logical inconsistencies and then flag them up for manual review.
+        When you're making your standards be sure to specify these details! Don't trust engineers to use their judgement, because you will end with inconsistency, (and ultimately less trust), in data! Instead, build this into your standards. A table like the following should suffice:
       </p>
-      <p>
-      * Do not have default blanks, have negatives! The specific standard we are currently working with specifies that gas type found in the manhole should be recorded. This is not standard as per STC25. This is all very well but unfortunately they didn't include the option 'None found'. For this reason future observers will not know whether the field was populated by the surveyor or inadvertantly not. This is especially critical when surveyors are dealing with differences in the spec that they know, STC25 in this case.
-      </p>
-      <p>
-      * Do not only detail that information should be inputted into your sewer records, specify that information should be inputted based on a priority system. I generally suggest making a table like the following:
-      </p>
-      
       <div class="center">
         <div>
           <table>
@@ -140,7 +158,151 @@
         </div>
       </div>
       <p>
-      Where 1 is the highest confidence data, and as the number increases, the confidence in that data source decreases. These confidence charts are especially useful when building models from sewer records and survey data.
+        Where 1 is the highest confidence data, and as the number increases, the confidence in that data source decreases. These confidence charts are especially useful when building models from sewer records and survey data.
+      </p>
+      <h3>Don't attach! Hotlink!</h3>
+      <p>
+        ICM databases typically store all attached files outside of the database in a folder called "Extras". In this folder they store GUIDs for each image and then use the <code>db_ref</code> field of the database object to store the link to the external file.
+      </p>
+      <p>
+        Intrinsically this generally means that there is actually little difference physically between hotlinking and attaching a file, apart from when you try to save these files as snapshot files or copy them to transportables. In these cases with the huge amount of pictures copied, the transportable database often swells massively in size, becoming barely transportable at all.
+      </p>
+      <p>
+        The alternative, hotlinking, ensures that the network size remains small allowing databases to be imported and ran quickly.
+      </p>
+      <p>
+        Hotlinks also allow you to be more tactical about the links you use. For example, it might be worth having seperate folders for ancillaries and manholes, and naming conventions. For example:
+      </p>
+      <pre><code class="text" removeSpace=8>
+        cso
+        |- C0001 - Madavale Road (CSO)
+        |  |- Drawings
+        |  |  |- SK12345678_Chamber.png
+        |  |- Photos
+        |  |  |- SK12345678_Location.png
+        |  |  |- SK12345678_Sketch.png
+        |  |- Misc
+        |  |  |- SK12345678_Plan.png
+        |- ...
+      </code></pre>
+      <p>
+        With hotlinks:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</td>
+            <th>Hotlink</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Chamber Drawing</td>
+            <td>cso/C0001 - Madavale Road (CSO)/Drawings/SK12345678_Chamber.png</td>
+          </tr>
+          <tr>
+            <td>Location Photo</td>
+            <td>cso/C0001 - Madavale Road (CSO)/Photos/SK12345678_Location.png</td>
+          </tr>
+          <tr>
+            <td>Sketch</td>
+            <td>cso/C0001 - Madavale Road (CSO)/Photos/SK12345678_Sketch.png</td>
+          </tr>
+          <tr>
+            <td>Location Plan</td>
+            <td>cso/C0001 - Madavale Road (CSO)/Misc/SK12345678_Plan.png</td>
+          </tr>
+        </tbody>
+      </table>
+      <br>
+      <hr>
+      <br>
+      <h2>DATA VALIDATION</h2>
+      <h3>Conditional data quality rules dependant on survey status</h3>
+      <p>
+        While checking the data for inconsistencies the above point can be extremely useful. For examle, If the surveyor is unable to raise a manhole, they should still record information including:
+      </p>
+      <li>Ground Level</li>
+      <li>Cover Shape</li>
+      <li>X</li>
+      <li>Y</li>
+      <p>
+        All of these fields should be filled with data. On the other hand, some fields would be impossible to fill in:
+      </p>
+      <li>Type of manhole (e.g. CSO, Outfall, SPS, Bifurcation, ...)</li>
+      <li>Chamber depth, shape or dimensions</li>
+      <li>Shaft depth, shape or dimensions</li>
+      <p>
+        Where as, if the surveyor was unable to find the manhole, then they won't be able to get any of the information. QA checks can then be built with this information in mind, check for logical inconsistencies and then flag them up for manual review.
+      </p>
+      <p>
+        These data quality checks could easily be checked using ruby!
+      </p>
+      <pre><code class="ruby" removeSpace=8>
+        $errors = []
+        def ensure(boolean,message)
+          if !boolean
+            $errors.push(message)
+          end
+        end
+        
+        isSurveyed = "user_text_1"
+        net = WSApplication.current_network
+        mhSurveys = net.row_objects("cams_manhole_survey")
+        mhSurveys.map do |row|
+          if row[isSurveyed]=="UTR"
+            ensure(row.ground_level != nil ,"UTR: Ground level should be surveyed")
+            ensure(row.cover_level != nil  ,"UTR: Cover level should be surveyed")
+            ensure(row.cover_shape != nil  ,"UTR: Cover shape should be surveyed")
+            ensure(row.x != nil            ,"UTR: x should be surveyed")
+            ensure(row.y != nil            ,"UTR: y should be surveyed")
+            ensure(row.type == nil         ,"UTR: type should not be surveyed")
+            ensure(row.shaft_depth == nil  ,"UTR: shaft depth should not be surveyed")
+            ensure(row.chamber_depth == nil,"UTR: chamber depth should not be surveyed")
+            #...
+          elsif row[isSurveyed]=="UTF"
+            ensure(row.ground_level != nil ,"UTF: Ground level should be surveyed")
+            ensure(row.cover_level  == nil ,"UTF: Cover level should not be surveyed if MH was not found")
+            #...
+          elsif row[isSurveyed]=="YES"
+            #...test everything
+          end
+        end
+      </code></pre>
+      <p>
+        The code could be made much more efficient, but this would at least work, and would do so quite well!
+      </p>
+      <h3>Include notes searches in data validation</h3>
+      <p>
+        In numerous cases we found a comment like "Flap valve on 'A' pipe" within the notes field, however no surveyed information about the flap valve itself (width, shape, invert, ...).
+      </p>
+      <p>
+        Validation algorithms should check for text within surveyed objects, and flag all assets as 'info' warnings, for manual review. A simple ruby script would be the following:
+      </p>
+      <pre><code class="ruby" removeSpace=8>
+          mhSurveys.map do |row|
+            if row.notes[/flap|valve|NRV/i]
+              raise_info(row)
+            end
+            if row.notes[/penstock|sluice|gate/i]
+              raise_info(row)
+            end
+            if row.notes[/hole|hiw|orifice/]
+              raise_info(row)
+            end
+            #...
+          end
+      </code></pre>
+      <h3>Choice lists</h3>
+      <p>
+        Although you can attach your choice lists to transportable databases, this also obfuscates whether the choice list is correct or not. Instead of attaching choice lists to the database, simply export the choice list CSV and supply it with the transportable database.
+      </p>
+      <p>
+        Choice lists are vital if you want InfoNet/InfoWorks Validation Objects to work, so make sure your choice lists are correct before you send them to the contractor!
+      </p>
+      <h2>Conclusion</h2>
+      <p>
+        That's all information I have for now. Remember to comment your own ideas on the linked in post!
       </p>
     </article>
   </body>
