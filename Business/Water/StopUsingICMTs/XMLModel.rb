@@ -104,26 +104,59 @@ class XMLRow < XMLElement
     row.label = "row"
     row.fields.map {|f| f.name.gsub("_flag","")}
     row.columns = table.fields.map do |field|
-      hasFlag = ...
-      XMLColumn.fromRowField(net,table,row,field,hasFlag)
+      if field.data_type != "Flag"
+        hasFlag = ...
+        XMLColumn.fromRowField(net,table,row,field,hasFlag)
+      end
     end
     return row
   end
 end
 class XMLColumn < XMLElement
-  attr_accessor :name, :flag
+  attr_accessor :name, :flag, :content, :table, :row
   @name = ""
   @flag = ""
   @content = ""
+  @table = nil
+  @row   = nil
   def self.fromRowField(net,table,row,field,hasFlag)
     column = XMLColumn.new
     column.label = "column"
     column.name = field.name
-    column.content = row[field.name]
+    column.content = serializeValue(row[field.name],field)
+    column.description = field.description
+    column.type = field.data_type
     if hasFlag
       column.flag = row[field.name+"_flag"]
     end
     return column
+  end
+  def serializeValue(value,field)
+    if field.data_type == "Date"
+      #DateTime from require 'Date'
+      return value.to_s
+    elsif value.is_a? WSStructure
+      result = {
+        "header"=>[
+        
+        ],
+        "data"=>[
+        
+        ]
+      }
+      
+      #Structure of blob
+      blobFields = field.fields
+      result["header"] = blobFields.map {|bf| "name"=>bf.name, "description"=>bf.description, "data_type"=>bd.data_type}
+      result["data"] = value.enum_for(:each).map do |row|
+        Hash[fields.map {|f| [f.name,row[f.name]]}]
+      end
+    else
+      return value
+    end
+  end
+  def parseValue(value)
+    
   end
 end
 class XMLElement
@@ -133,3 +166,8 @@ class XMLElement
     "<" + @label + ">" + content + "</" + @label + ">"
   end
 end
+
+#db = WSApplication.current_database
+#row.attachments.each do |attachment|
+#  path = File.join(File.dirname(db.path),db.guid,"Extras",attachment.db_ref) 
+#end
