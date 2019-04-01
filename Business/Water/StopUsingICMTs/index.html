@@ -1,0 +1,153 @@
+<html>
+  <head>
+    <title>Survey and Data Standards - Lessons Learnt</title>
+    <link rel="stylesheet" href="./css/Cayman.css"/>
+    <link rel="stylesheet" href="highlight/styles/default.css">
+    <script src="highlight/highlight.pack.js"></script>
+    
+    <script>
+      window.addEventListener("load",function(){
+        document.querySelectorAll("code").forEach(function(el){
+          if(el.attributes.removeSpace){
+            var n = el.attributes.removeSpace.value;
+            var replacer = new RegExp("\\n" + " ".repeat(n),"g");
+            el.innerHTML = el.innerHTML.replace(replacer,"\n");
+          };
+        });
+      });
+      
+      hljs.initHighlightingOnLoad();
+    </script>
+    <script src="js/ArticleNavigator.js"></script>
+    <style>
+      
+      img {
+        width:50%;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      img.small {
+        width:25%;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .center {
+        display: block;
+        
+        
+      }
+      table {
+        display: block;
+        width: -webkit-fit-content;
+        margin: 0 auto;
+      }
+      table th {
+        padding: 12px;
+        padding: 12px;
+        text-align: left;
+        background-color: rgb(157, 157, 157);
+        color: white;
+      }
+      table tr:nth-child(even){
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="page-header">
+      <h1 class="headerIgnore">Stop using ICMTs</h1>
+      <h2 class="headerIgnore">James Warren</h2>
+      <a href="../" style="color:white;"> &#11014; Previous page &#11014;</a>
+    </header>
+    
+    <article class="main-content">
+      <h2>Background</h2>
+      <p>
+        Recently I've been working on multiple projects across multiple different ICM versions. I've been using ICM for the best part of 4 years now, and initially I thought the transportable database format was great! Transportable database are simply compressed standalone databases and allow for quick transfer of modelling items.
+      </p>
+      <p> 
+        Initially I thought transportable databases were great, however over the past few months I have had continual frustrations with ICMTs and in this article I wish to discuss the reasons why.
+      </p>  
+      
+      <h2>What are ICMTs?</h2>
+      <p>
+          Transportable databases are one of the easiest (and fundamental) methods of sharing InfoWorks ICM and InfoNet data. Quite often a consultant is required to submit their hydraulic models to the client as a transportable database. 
+      </p>
+      <p>
+        To create a transportable database simply click on the "New transportable database" button. After selecting a location for the transportable database you can copy and paste database objects into it from the database explorer.
+      </p>
+      <img src="assets/icmtNew.png"/>
+
+      <h2>Why do we use them?</h2>
+      <p>
+        ICMTs are used for a multitude of reasons. Below I have highlighted a few reasons why you might use an ICMT.
+      </p>
+      <div>
+          <li>
+            To distribute verified and time horizon models to clients for use within their own internal teams.
+          </li>
+          <li>
+            To send simulation files to clients for further analysis with ICM.
+          </li>
+          <li>
+            To send waste water profiles, trade profiles, and other simulation files to the client.
+          </li>
+          <li>
+            asdf
+          </li>
+      </div>
+        
+      <h2>Why change?</h2>
+      <p>
+        ...
+      </p>
+      <h2>What is the alternative?</h2>
+      <p>
+        ...
+      </p>
+
+
+      <p>
+          It is unfathomable to me that companies are using InfoWorks data formats to transport their data even though there are massive backwards compatibility issues with the software. Versions of the software don't even know the version of software the ICMT, Snapshot etc. was built in! If I didn't have my <a href="https://sancarn.github.io/Business/Water/ICMTransportables/examples/4"> online transportable database version checker</a>, I would be at a complete loss as to which ICM version my transportable databases were made in. So why on earth are water companies using this format to transport data?
+        </p>
+        <p>
+          I feel they are mostly ignorant to these issues... So they end up walking into the trap where a consultant supplies data they can't even view! It all ends up being a big waste of everybodies time...
+        </p>
+        <p>
+          Now bare in mind, I don't think this is anyone's fault per se. I think it is quite clear that InfoWorks software was never designed for large databases, models or simulations, and I think this is mostly because InfoWorks is legacy software. But I think it's really time that water companies step out of the closet and get truly transportable data. Data they can open in QGIS for free. Data they have full access to, and data which is even human readable!
+        </p>
+
+
+    </article>
+  </body>
+</html>
+
+
+
+<!-- jjPara
+  <p>
+
+  </p>
+-->
+
+<!-- jjCode
+  <pre><code class="" removeSpace=8>
+    
+  </code></pre>
+-->
+
+<!-- jjTable
+  <table>
+    <thead>
+      <tr><th>head1</td><th>head2</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>r1c1</td><td>r1c2</td></tr>
+      <tr><td>r2c1</td><td>r2c2</td></tr>
+      <tr><td>r3c1</td><td>r3c2</td></tr>
+    </tbody>
+  </table>
+-->
