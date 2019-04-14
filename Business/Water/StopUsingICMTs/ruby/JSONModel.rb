@@ -76,9 +76,9 @@ Resulting Structure:
 =end
 
 
-require_relative 'ostruct'
+require 'ostruct'
 require 'Date'
-module OXMLSnapshot
+module OJSONSnapshot
   def export
     #...
   end
@@ -86,7 +86,6 @@ module OXMLSnapshot
     #...
   end
 
-  Schema = Nokogiri::XML::Schema(File.read(schema_path))
   #Multithreaded for speed
   class JSONModel
     #Singleton methods
@@ -319,7 +318,6 @@ module OXMLSnapshot
     end
     def to_file(path,pretty=false)
       #Export model to file
-      if !pretty
       File.open(path,"w") do |file|
         if pretty
           file.write(JSON.pretty_generate(@document))
