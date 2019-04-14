@@ -362,8 +362,20 @@ module OJSONSnapshot
      
       #Get model network
       iwdb = WSApplication.current_database
-     
-      return iwdb.model_object_from_type_and_id('Model Network',networkID)
+      
+      #Determine network type
+      table1 = net.table_names[0]
+      if table1["cams_"]
+        netType = "Collection Network"
+      elsif table1["hw_"]
+        netType = "Model Network"
+      elsif table1["wams_"]
+        netType = "Distribution Network"
+      else
+        raise "Unknown network type"
+      end
+
+      return iwdb.model_object_from_type_and_id(netType,networkID)
     end
     def getName(net)
       getModelObject(net).name
@@ -404,4 +416,8 @@ module OJSONSnapshot
       end
     end
   end
+
+  JSONModel.new(WSApplication.current_network)
 end
+
+
