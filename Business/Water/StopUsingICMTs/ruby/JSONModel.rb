@@ -76,18 +76,86 @@ Resulting Structure:
 =end
 
 
-require 'ostruct'
-require 'Date'
+#TODO: 
+#* Export Option Minify - When uncompressed the file contains a lot of blanks which are essentially default data. E.G.
+#     {
+#       "type": "Date",
+#       "meta": {
+#         "flag": ""
+#       },
+#       "name": "year_laid",
+#       "value": null
+#     },
+#     {
+#       "type": "String",
+#       "meta": {
+#         "flag": ""
+#       },
+#       "name": "owner",
+#       "value": ""
+#     },
+#     {
+#       "type": "table",
+#       "meta": {
+#       },
+#       "name": "cams_flood_defence_survey",
+#       "rows": [
+#
+#       ]
+#     }
+#  The minify version should simply not include these fields... I.E. if data.type == "String" && data.value != "" then fields.push(data)
+#  and if data.type == "table" && data.rows.length != 0 then scenario.push(data)
+
+
+def os_to_hd(o)
+  if o.is_a?(OpenStruct) || o.is_a?(Array) || o.is_a?(Hash)
+    if o.is_a? OpenStruct
+      obj = o.marshal_dump
+    else
+      obj = o
+    end
+    if obj.is_a? Hash
+      obj.each do |k,v|
+        next obj[k] = os_to_hd(v)
+      end
+    elsif obj.is_a? Array
+      obj = obj.map do |v|
+        next os_to_hd(v)
+      end
+    end
+    return obj
+  else
+    return o
+  end
+end
+
 module OJSONSnapshot
+  require 'ostruct'
+  require 'Date'
+  require 'json'
+  
   def export
     #...
   end
   def import
     #...
   end
+  
+  #Shim for Ruby 2.0 OpenStruct
+  class ::OpenStruct
+    def [](name)
+      @table[name.to_sym]
+    end
+    def []=(name, value)
+      modifiable[new_ostruct_member(name)] = value
+    end
+  end
+  
 
   #Multithreaded for speed
   class JSONModel
+    attr_accessor :errors
+    
     #Singleton methods
     def self.export(file,net)
       JSONModel.new(net).to_file(file)
@@ -100,6 +168,7 @@ module OJSONSnapshot
       os = OpenStruct.new({})
       os.type = type
       os.meta = OpenStruct.new({})
+      return os
     end
 
     #Initialiser
@@ -160,7 +229,7 @@ module OJSONSnapshot
               
               #Loop over fields of table
               table.fields.each do |field|
-                if field.datatype=='Flag'
+                if field.data_type=='Flag'
                   #Bind flag to existing field:w
                   match = /(?<field>.+)_flag/i.match(field.name)
                   if match
@@ -172,7 +241,7 @@ module OJSONSnapshot
                   #Create cell XML node
                   jsonField = JSONModel.newObj("field")
                   jsonField.name=field.name
-                  jsonField.type = field.datatype
+                  jsonField.type = field.data_type
                   #Append node to row:
                   jsonRow.fields.push(jsonField)
 
@@ -181,15 +250,16 @@ module OJSONSnapshot
                 end
               end
 
-              #TODO: Possibly need to deal with scheduled flags here?
+              #TODO: Long term need to deal with scheduled flags here. Because not every format 
+              #will start with non flag fields.
             end
           end
-        end.each(&:sync)
+        end.each(&:join)
       end
     end
     def initialise_fromFile(file)
       begin
-        @document = JSON.load(file,{:object_class => OpenStruct})
+        @document = JSON.load(file,nil,{:object_class => OpenStruct})
       rescue Exception => e
         raise e 
       end
@@ -197,7 +267,7 @@ module OJSONSnapshot
     end
     def initialise_fromString(json)
       begin
-        @document = JSON.load(json,{:object_class => OpenStruct})
+        @document = JSON.load(json,nil,{:object_class => OpenStruct})
       rescue Exception => e
         raise e 
       end
@@ -234,8 +304,10 @@ module OJSONSnapshot
     
     #Instance methods
     def to_net(net,overwrite=true)
+      
       #Import model to network
       isExchange = getIsExchange()
+      
       transaction(net) do 
         if isExchange  
           mo = getModelObject(net)
@@ -255,7 +327,7 @@ module OJSONSnapshot
                 Thread.new do
                   net.run_SQL(table.name, "DELETE")
                 end
-              end.each(&:sync)
+              end.each(&:join)
             else
               #If existing scenario exists, delete it
               if existing_scenarios.include?(scenario.name)
@@ -272,27 +344,44 @@ module OJSONSnapshot
               #Find matching table:
               #  netTable  = table in network
               #  jsonTable = table in JSON
-              jsonTable = scenario.tables.detect {|t| t.name == table.name}
-
+              jsonTable = scenario.tables.detect {|t| t.name == netTable.name}
+              
               #If data to write then loop over each row to add
               if jsonTable.rows.length > 0
                 jsonTable.rows.each do |jsonRow|
                   #Create row object in network
-                  ro = net.new_row_object(table.name)
+                  ro = net.new_row_object(netTable.name)
 
                   #Find fields which are similar between 2 tables:
-                  netFields  = netTable.fields.map {|f| f.name + "-" + f.data_type}
-                  jsonFields = jsonRow.fields.map  {|f| f.name + "-" + f.type}
+                  netFields  = netTable.fields.select {|f| !f.read_only?}.map {|f| f.name + "-$-" + f.data_type}
+                  jsonFields = jsonRow.fields.map  {|f| f.name + "-$-" + f.type}
                   simFields  = netFields.select {|netFieldName| jsonFields.include?(netFieldName)}
                   
                   #Loop over similar field names:
                   simFields.each do |fieldName|
-                    jsonField = jsonRow.fields.detect {|f| f.name==fieldName}
-                    if jsonField.type != "WSStructure"
-                      ro[fieldName] = jsonField.value
-                      ro[fieldName + "_flag"] = jsonField.meta.flag if jsonField.meta.flag
-                    else
-                      #TODO: Implement WSStructure writing
+                    #Grab type and 
+                    fieldData = fieldName.split("-$-")
+                    fieldData = {:name=>fieldData[0],:type=>fieldData[1]}
+                    
+                    #Get jsonField for field name
+                    jsonField = jsonRow.fields.detect {|f| f.name==fieldData[:name]}
+                    
+                    #Ensure type consistency
+                    if fieldData[:type]==jsonField.type
+                      #Write data! Special setup for structures and dates
+                      if jsonField.type == "Date"
+                        ro[fieldData[:name]] = (jsonField.value==nil ? nil : DateTime.parse(jsonField.value).strftime("%d/%m/%Y %H:%M:%S")) #Note: Traditionally this value takes a string not a date time. Post 17.5.8 this field uses date time as well.
+                        ro[fieldData[:name] + "_flag"] = jsonField.meta.flag if jsonField.meta.flag
+                      elsif jsonField.type == "WSStructure"
+                        #TODO: Implement WSStructure writing
+                      else
+                        begin
+                          ro[fieldData[:name]] = jsonField.value
+                          ro[fieldData[:name] + "_flag"] = jsonField.meta.flag if jsonField.meta.flag
+                        rescue Exception => e
+                          errors.push(Exception.new("Error row #{jsonRow.id} for field #{fieldData[:name]}: #{e.message}"))
+                        end
+                      end
                     end
                   end
 
@@ -300,19 +389,8 @@ module OJSONSnapshot
                   ro.write()
                 end
               end
-              
-              table.fields.each do |field|
-                table.fields.select {|f| f.name == field.name}
-                if field.type != "WSStructure"
-                  ro[field.name] = ro[field.value]
-                  ro[field.name + "_flag"] = ro.meta.flag if ro.meta.flag
-                else
-                  #TODO: WSStructure handling
-                end
-
-              end
             end
-          end.each(&:sync)
+          end.each(&:join)
         end
       end
     end
@@ -320,15 +398,15 @@ module OJSONSnapshot
       #Export model to file
       File.open(path,"w") do |file|
         if pretty
-          file.write(JSON.pretty_generate(@document))
+          file.write(JSON.pretty_generate(os_to_hd(@document)))
         else
-          JSON.dump(@document,file)
+          JSON.dump(os_to_hd(@document),file)
         end
       end
     end
     def to_s(indent)
       #Export model to string
-      return doc.to_json(:indent => indent)
+      return @document.to_json(:indent => indent)
     end
 
     private
@@ -388,7 +466,7 @@ module OJSONSnapshot
         struct_fields = field.fields
 
         #Loop over struct and generate XML
-        struct.each do |row|
+        jsonStruct.each do |row|
           jsonRow = JSONModel.newObj("WSStructure_Row")
           jsonStruct.children.push(jsonRow)
           jsonRow.fields = []
@@ -409,15 +487,21 @@ module OJSONSnapshot
           end
         end
         return jsonStruct
-      elsif field.datatype == "Date"
-        return DateTime.parse(row[field.name]).to_s
+      elsif field.data_type == "Date"
+        if row[field.name]!=nil
+          dt= DateTime.parse(row[field.name].to_s) #CHANGE
+          return dt.to_s
+        else
+          return nil
+        end 
       else
         return row[field.name]
       end
     end
   end
 
-  JSONModel.new(WSApplication.current_network)
+  #JSONModel.new(WSApplication.current_network).to_file("C:\\net.json",true)
+  #JSONModel.import("C:\\net.json", WSApplication.current_network)
 end
 
 
