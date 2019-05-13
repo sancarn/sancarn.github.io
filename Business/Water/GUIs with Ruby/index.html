@@ -366,7 +366,7 @@
         <p>You can also click on each of the bars to turn them light green. I also added an 'invert' button which inverts all the values in the graph. This helps you click on bars which have small values. I could imagine a GUI like this being used for model review. Maybe you could build a ruby script using the&nbsp;<a href="https://www.linkedin.com/pulse/infoworks-icm-reading-userflags-ruby-james-warren/" target="_blank">WSFlags</a>&nbsp;library and display each of the flags, how often it is used, and it's description...</p> 
         <pre><code class="ruby" removeSpace=8>
           require_relative('Powershell.rb')
-                    require'json'
+          require 'json'
           
           net = WSApplication.current_network
           data = {}
