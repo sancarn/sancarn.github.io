@@ -9,7 +9,6 @@
     </style>
     <script>
         function exec() {
-            //debugger
             var cost = parseFloat(document.getElementById("cost").value);
             var perc = parseFloat(document.getElementById("perc").value);
             alert("You charge £" + round2(cost / (1 - perc / 100) + 0.3));
