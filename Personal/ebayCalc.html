@@ -1,0 +1,37 @@
+<html>
+
+<head>
+    <style>
+        button {
+            width: 100px;
+            height: 30px;
+        }
+    </style>
+    <script>
+        function exec() {
+            //debugger
+            var cost = parseFloat(document.getElementById("cost").value);
+            var perc = parseFloat(document.getElementById("perc").value);
+            alert("You charge £" + round2(cost / (1 - perc / 100) + 0.3));
+        }
+        function round2(num) {
+            return Math.round(num * 100.0) / 100.0
+        }
+    </script>
+</head>
+
+<body>
+    <h2>A quick site for a friend</h2>
+    <p>Amount you want to get</p>
+    <br>
+    <input id="cost"></input>
+    <br>
+    <p>Percentage reduction</p>
+    <br>
+    <input id="perc" value=12.8></input>
+    <br>
+    <button onclick="exec()">Calculate</button>
+</body>
+
+
+</html>
