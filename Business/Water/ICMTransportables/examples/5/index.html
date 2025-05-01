@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script type="module">
+            import InfoLiteTransportable from "https://raw.githack.com/sancarn/InfoLiteTransportableTS/main/dist/InfoLiteTransportable.js";
+            import { validationResultsToString } from "https://raw.githack.com/sancarn/InfoLiteTransportableTS/main/dist/InfoLiteTransportable.js";
+
+            let files = [];
+            let dsl = "";
+
+            window.validateFiles = async () => {
+                if(!dsl || dsl.length === 0) return;
+                
+                const lines = []
+                for (let file of files) {
+                    try {
+                        let infoLite = await InfoLiteTransportable.CreateFromFile(file, true);
+                        let validation = infoLite.validate(dsl);
+                        lines.push(
+                            "✅ " + file.name + `: ${validation.type == "success" ? "No Errors" : "Errors found: " + validation.errors.length} \n` +
+                            validationResultsToString(validation)
+                        );
+                    } catch (e) {
+                        lines.push(`⛔ ${file.name} ::: ${e.message}`);
+                    }
+                }
+                //For now log results
+                document.getElementById("results").value = lines.join("\n\n"); 
+            };
+
+            document.getElementById("dsl").addEventListener("change", async (e) => {
+                dsl = e.target.value;
+                validateFiles();
+            });
+            document.getElementById("file").addEventListener("change", async (e) => {
+                files = Array.from(e.target.files);
+                validateFiles();
+            });
+        </script>
+    </head>
+    <body>
+        <textarea id="dsl" rows="30" style="width: 100%;" placeholder="Enter DSL rules here..."></textarea><br />
+        <input type="file" id="file" accept=".icmt" multiple />
+        <button onclick="validateFiles()">Validate</button>
+        <textarea id="results" rows="30" style="width: 100%;" placeholder="Validation results will appear here..."></textarea>
+    </body>
+</html>

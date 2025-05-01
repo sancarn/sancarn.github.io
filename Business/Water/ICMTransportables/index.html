@@ -324,13 +324,7 @@
               }
               
               
-              .demo-button-tree:hover {
-                background-color:rgb(18, 112, 18);
-              }
-              .demo-button-file:hover {
-                background-color:rgb(18, 112, 18);
-              }
-              .demo-button-cli:hover {
+              .demo-button:hover {
                 background-color:rgb(18, 112, 18);
               }
             </style>
@@ -348,6 +342,10 @@
                 document.getElementById("cButt").addEventListener("click",function(){
                   window.location.href = "examples/3";
                 });
+                document.getElementById("vButt").addEventListener("click",function(){
+                  window.location.href = "examples/5";
+                })
+
               })
             </script>
             <button id="gButt" class="demo-button demo-button-cli">
@@ -357,6 +355,7 @@
             <button id="tButt" class="demo-button demo-button-tree">Tree Viewer</button>
             <button id="fButt" class="demo-button demo-button-file">File Viewer</button>
             <button id="cButt" class="demo-button demo-button-cli" >CLI  Viewer</button>
+            <button id="vButt" class="demo-button demo-button-validation" >Transportable Validator</button> 
           </div>
           
           <h3>Limitations and community contributions</h3>
