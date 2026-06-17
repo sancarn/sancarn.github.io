@@ -1,48 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <script type="module">
-            import InfoLiteTransportable from "https://raw.githack.com/sancarn/InfoLiteTransportableTS/main/dist/InfoLiteTransportable.js";
-            import { validationResultsToString } from "https://raw.githack.com/sancarn/InfoLiteTransportableTS/main/dist/InfoLiteTransportable.js";
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Transportable Validator · Sancarn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../../../assets/theme.css" />
+    <script type="module">
+      import InfoLiteTransportable from "https://raw.githack.com/sancarn/InfoLiteTransportableTS/main/dist/InfoLiteTransportable.js";
+      import { validationResultsToString } from "https://raw.githack.com/sancarn/InfoLiteTransportableTS/main/dist/InfoLiteTransportable.js";
 
-            let files = [];
-            let dsl = "";
+      let files = [];
+      let dsl = "";
 
-            window.validateFiles = async () => {
-                if(!dsl || dsl.length === 0) return;
-                
-                const lines = []
-                for (let file of files) {
-                    try {
-                        let infoLite = await InfoLiteTransportable.CreateFromFile(file, true);
-                        let validation = infoLite.validate(dsl);
-                        lines.push(
-                            "✅ " + file.name + `: ${validation.type == "success" ? "No Errors" : "Errors found: " + validation.errors.length} \n` +
-                            validationResultsToString(validation)
-                        );
-                    } catch (e) {
-                        lines.push(`⛔ ${file.name} ::: ${e.message}`);
-                    }
-                }
-                //For now log results
-                document.getElementById("results").value = lines.join("\n\n"); 
-            };
+      window.validateFiles = async () => {
+        if (!dsl || dsl.length === 0) return;
 
-            document.getElementById("dsl").addEventListener("change", async (e) => {
-                dsl = e.target.value;
-                validateFiles();
-            });
-            document.getElementById("file").addEventListener("change", async (e) => {
-                files = Array.from(e.target.files);
-                validateFiles();
-            });
-        </script>
-    </head>
-    <body>
-        <a href="https://github.com/sancarn/InfoLiteTransportableTS/blob/main/tests/sites/test.md">DSL Examples</a><br/>
-        <textarea id="dsl" rows="30" style="width: 100%;" placeholder="Enter DSL rules here..."></textarea><br />
-        <input type="file" id="file" accept=".icmt" multiple />
-        <button onclick="validateFiles()">Validate</button>
-        <textarea id="results" rows="30" style="width: 100%;" placeholder="Validation results will appear here..."></textarea>
-    </body>
+        const lines = [];
+        for (let file of files) {
+          try {
+            let infoLite = await InfoLiteTransportable.CreateFromFile(file, true);
+            let validation = infoLite.validate(dsl);
+            lines.push(
+              "✅ " +
+                file.name +
+                `: ${validation.type == "success" ? "No Errors" : "Errors found: " + validation.errors.length} \n` +
+                validationResultsToString(validation)
+            );
+          } catch (e) {
+            lines.push(`⛔ ${file.name} ::: ${e.message}`);
+          }
+        }
+        document.getElementById("results").value = lines.join("\n\n");
+      };
+
+      document.getElementById("dsl").addEventListener("change", async (e) => {
+        dsl = e.target.value;
+        validateFiles();
+      });
+      document.getElementById("file").addEventListener("change", async (e) => {
+        files = Array.from(e.target.files);
+        validateFiles();
+      });
+    </script>
+  </head>
+  <body>
+    <main style="max-width: var(--content-wide)">
+      <header>
+        <a class="nav-back" href="../../">↑ ICM Transportables</a>
+        <h1>Transportable Validator</h1>
+        <p class="tagline">Validate .icmt files with DSL rules</p>
+      </header>
+
+      <p>
+        <a href="https://github.com/sancarn/InfoLiteTransportableTS/blob/main/tests/sites/test.md"
+          >DSL Examples</a
+        >
+      </p>
+      <textarea id="dsl" rows="30" placeholder="Enter DSL rules here..."></textarea>
+      <input type="file" id="file" accept=".icmt" multiple />
+      <button type="button" onclick="validateFiles()">Validate</button>
+      <textarea id="results" rows="30" placeholder="Validation results will appear here..."></textarea>
+    </main>
+  </body>
 </html>

@@ -1,8 +1,15 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <!--<Include Theme>-->
-        <link rel="stylesheet" type="text/css" href="./../../css/Cayman.css"/>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+          rel="stylesheet"
+        />
+        <link rel="stylesheet" href="../../../../assets/theme.css" />
 
         <!--<Include JSZip>-->
         <script src="./../../libs/libs/jszip.min.js"></script>
@@ -27,30 +34,9 @@
         <script src="https://cdn.rawgit.com/TarVK/chromeConsole/version-1.0/console.js"></script>
         <link rel="stylesheet" href="https://cdn.rawgit.com/TarVK/chromeConsole/version-1.0/console.css" type="text/css" />
         <style>
-            html, body {
-                width:100%;
-                height:100%;
-            }
-            .main-container {
-                width:100%;
-                height:100%;
-                display:table;
-            }
             .left-pane {
-                display:table-cell;
                 width: 31vw;
-                height:100%;
-                border-right-width: 2px;
-                border-right-color:blue;
-                border-right-style: solid;
-                padding:10px;
-                background-color:aliceblue;
                 font-size: 1.3vw;
-            }
-            .right-pane {
-                display:table-cell;
-                height:100%;
-                padding:10px;
             }
             h3 {
                 font-size:1.5vw;
@@ -69,7 +55,7 @@
             }
         </script>
     </head>
-    <body>
+    <body class="demo-layout">
         <div class="main-container">
             <div class="left-pane">
                 <h3>Online Transportable CLI</h1>

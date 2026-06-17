@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Parsing ICM Standalone and Transportable databases</title>
-    
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
-    
-    <!--<Include Theme>-->
-    <link rel="stylesheet" type="text/css" href="./css/Cayman.css"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Parsing ICM Standalone and Transportable databases · Sancarn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../../assets/theme.css" />
 
     <!--<Include JQuery>-->
     <script src="./libs/libs/jquery.min.js"></script>
@@ -34,43 +38,17 @@
     <!--<Article Navigator>-->
     <script src="./libs/libs/ArticleNavigator.js"></script>
 
-    <!--< Footer data >-->
     <style>
-      html, body {
-          width:100%;
-          height:100%;
-      }
-      .profile-card {
-          display: inline-block;
-          border-style:solid;
-          padding:0.5vw;
-          width:30vw;
-      }
-      .profile-container {
-          display:table;
-      }
-      .profile-cell {
-          display:table-cell;
-          width:100%;
-          height:100%;
-      }
-      .profile-text {
-          width:23vw;
-          overflow:auto;
-      }
       .profile-img {
-          background-image: url("https://sancarn.github.io/Business/James.jpg");
-          background-size:contain;
-          background-repeat: no-repeat;
-          width:6vw;
+        background-image: url("https://sancarn.github.io/Business/James.jpg");
       }
     </style>
   </head>
   <body>
       <header class="page-header">
+          <a class="nav-back" href="../">↑ Water</a>
           <h1 class="headerIgnore">Parsing ICM Standalone and Transportable databases</h1>
           <h2 class="headerIgnore">James Warren</h2>
-          <a href="../" style="color:white;"> &#11014; Previous page &#11014;</a>
       </header>
       <main class="main-content">
           <h2>Motivation</h2>
@@ -287,16 +265,16 @@
 
           <div>
             <div style="text-align:center;">
-              <div style="display: inline-block; font-style: oblique;">
-                  <span style="background-color: rgb(235, 137, 137);float:left;padding:3px">AG</span>
-                  <span style="background-color: rgb(154, 247, 247);float:left;padding:3px">12</span>
-                  <span style="background-color: rgb(185, 185, 185);float:left;padding:3px">.DAT</span>
+              <div class="filename-demo">
+                  <span class="filename-part filename-part-type">AG</span>
+                  <span class="filename-part filename-part-id">12</span>
+                  <span class="filename-part filename-part-ext">.DAT</span>
               </div>
             </div>
           </div>
           
           <p>
-            The <span style="background-color: rgb(235, 137, 137);">red section</span> relates to <i>id<sub>type</sub></i> . This is a 1-to-1 representation with each model object type being attributed to it's own numeric <i>id<sub>type</sub></i> . The <span style="background-color: rgb(154, 247, 247);">blue section</span> is equal to <i>id<sub>cumulative</sub></i> . So in the case of <code>AG12.DAT</code> the type is <code>AG</code> which can be translated into the number <code>176</code>. So ultimately our equation becomes <code>id = 176+256*12 = 3248</code>. Now that you know how transportable databases work, you can verify this for yourself!
+            The <span class="filename-highlight filename-part-type">red section</span> relates to <i>id<sub>type</sub></i> . This is a 1-to-1 representation with each model object type being attributed to it's own numeric <i>id<sub>type</sub></i> . The <span class="filename-highlight filename-part-id">blue section</span> is equal to <i>id<sub>cumulative</sub></i> . So in the case of <code>AG12.DAT</code> the type is <code>AG</code> which can be translated into the number <code>176</code>. So ultimately our equation becomes <code>id = 176+256*12 = 3248</code>. Now that you know how transportable databases work, you can verify this for yourself!
           </p>
 
           <h2>Open Source JavaScript Library</h2>
@@ -309,25 +287,6 @@
           </p>
 
           <div>
-            <style>
-              .demo-button {
-                transition: all 0.3s;
-                color: rgb(24, 191, 24);
-                border-radius: 7px;
-                border-color: rgb(24, 191, 24);
-                background: transparent;
-                margin: 0px 3px;
-                padding: 7px 14px;
-                outline: 0;
-                margin-left: 20px;
-                background-color:rgb(227, 255, 223);
-              }
-              
-              
-              .demo-button:hover {
-                background-color:rgb(18, 112, 18);
-              }
-            </style>
             <script>
               $(function(){
                 document.getElementById("gButt").addEventListener("click",function(){

@@ -1,7 +1,17 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <link rel="stylesheet" href="./css/Cayman.css"></link>
-    <link rel="stylesheet" href="highlight/styles/default.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Custom GUIs in InfoWorks using Ruby · Sancarn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../../assets/theme.css" />
+    <link rel="stylesheet" href="highlight/styles/atom-one-dark.css">
     <script src="highlight/highlight.pack.js"></script>
     
     <script>
@@ -18,44 +28,12 @@
       hljs.initHighlightingOnLoad();
     </script>
     <script src="js/ArticleNavigator.js"></script>
-    <style>
-      img {
-        width:50%;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-      }
-      img.small {
-        width:25%;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-      }
-      .center {
-        display: block;
-        width:30%;
-        transform: translate(-50%, 0);
-        position: relative;
-        left: 50%;
-      }
-      
-      table th {
-        padding: 12px;
-        padding: 12px;
-        text-align: left;
-        background-color: rgb(157, 157, 157);
-        color: white;
-      }
-      table tr:nth-child(even){
-        background-color: #f2f2f2;
-      }
-    </style>
   </head>
   <body>
       <header class="page-header">
+        <a class="nav-back" href="../">↑ Water</a>
         <h1 class="headerIgnore">GUIs with Ruby</h1>
         <h2 class="headerIgnore">James Warren</h2>
-        <a href="../" style="color:white;"> &#11014; Previous page &#11014;</a>
       </header>
       <article class="main-content">
         <p>We use Graphical User Interfaces (GUIs) to display information and interact with the user.</p> 
@@ -81,8 +59,7 @@
         <p>I found numerous syntax overviews&nbsp;<a href="http://www.computerperformance.co.uk/powershell/powershell_syntax.htm" target="_blank" rel="nofollow noopener">online</a>, however I figured I should give a short overview myself, found below...</p> 
         <p>The first thing to note is that Powershell is a "shell based scripting language" and thus every object, class, function etc. in Powershell is treated as an 'application', as it were, in Command Prompt. This brings some unique behaviors which look quite bizarre to programmers who come from a C/Ruby/VB background.</p> 
         <p>All variable names must be prefixed with a&nbsp;<code>$</code>. So&nbsp;<code>houseCount = 5&nbsp;</code>would cause a syntax error. The correct syntax being&nbsp;<code>$houseCount = 5</code>.&nbsp;<code>$houseCount</code>&nbsp;is now an 'application' in it's own right. One common programmatic operation we might like to perform is logical operations,<code> (&lt;,&gt;,==,!=,...)</code>. E.G. in Ruby we would write:&nbsp;<code>if($houseCount &lt; 10){Write-Host "Too Few!"}</code>. Trying to execute this in Powershell will fail. Why? Because&nbsp;<code>&lt;</code>&nbsp;in command line means "Pipe to&nbsp;STDIN". Instead we have to use command line arguments of<code>&nbsp;$houseCount:&nbsp;if($houseCount -lt 10){Write-Host "Too Few!"}</code>. See the table below:</p> 
-        <div class="center">
-          <table>
+        <table>
             <thead>
             <tr>
             <th>Operator</th>
@@ -116,7 +93,6 @@
             </tr>
             </tbody>
           </table>
-        </div>
         <p>If you have a keen eye you might have noticed the&nbsp;<code>Write-Host</code>&nbsp;routine. The is equivalent to&nbsp;<code>puts</code>&nbsp;in Ruby. It is via&nbsp;<code>Write-Host</code>&nbsp;that we will output all data to STDOUT from Powershell to Ruby. Arrays and hashes are created with the&nbsp;<code>@</code>&nbsp;syntax:&nbsp;<code>$myArray=@(1,2,3)</code>&nbsp;and&nbsp;<code>$myHash = @{'foo'='bar', 'bash'=3}</code>. Looping through arrays and lists can be done with the&nbsp;<code>ForEach</code>&nbsp;statement:</p> 
         <pre><code class="powershell" removeSpace=8>
           ForEach($num in $myArray){

@@ -1,36 +1,43 @@
-<html>
-
-<head>
-    <style>
-        button {
-            width: 100px;
-            height: 30px;
-        }
-    </style>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>eBay Fee Calculator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../assets/theme.css" />
     <script>
-        function exec() {
-            var cost = parseFloat(document.getElementById("cost").value);
-            var perc = parseFloat(document.getElementById("perc").value);
-            alert("You charge £" + round2(cost / (1 - perc / 100) + 0.3));
-        }
-        function round2(num) {
-            return Math.round(num * 100.0) / 100.0
-        }
+      function exec() {
+        var cost = parseFloat(document.getElementById("cost").value);
+        var perc = parseFloat(document.getElementById("perc").value);
+        alert("You charge £" + round2(cost / (1 - perc / 100) + 0.3));
+      }
+      function round2(num) {
+        return Math.round(num * 100.0) / 100.0;
+      }
     </script>
-</head>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>eBay Fee Calculator</h1>
+        <p class="tagline">A quick site for a friend</p>
+      </header>
 
-<body>
-    <h2>A quick site for a friend</h2>
-    <p>Amount you want to get</p>
-    <br>
-    <input id="cost"></input>
-    <br>
-    <p>Percentage reduction</p>
-    <br>
-    <input id="perc" value=12.8></input>
-    <br>
-    <button onclick="exec()">Calculate</button>
-</body>
+      <section class="bio">
+        <label for="cost">Amount you want to get</label>
+        <input id="cost" type="number" step="0.01" />
 
+        <label for="perc">Percentage reduction</label>
+        <input id="perc" type="number" step="0.1" value="12.8" />
 
+        <button type="button" onclick="exec()">Calculate</button>
+      </section>
+    </main>
+  </body>
 </html>
