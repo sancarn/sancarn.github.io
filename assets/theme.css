@@ -583,6 +583,21 @@ body.demo-layout p {
   background-position: center;
 }
 
+html[data-ref="business"] .profile-img {
+  background-image: url("/Business/James.jpg");
+}
+
+html:not([data-ref="business"]) .profile-img {
+  display: none;
+}
+
+html:not([data-ref="business"]) a.identity-linkedin {
+  pointer-events: none;
+  cursor: default;
+  text-decoration: none;
+  color: inherit;
+}
+
 .demo-button {
   transition: all 0.2s ease;
   color: var(--accent);

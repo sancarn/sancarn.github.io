@@ -11,6 +11,7 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../../../assets/theme.css" />
+    <script src="/assets/identity.js"></script>
 
     <!--<Include JQuery>-->
     <script src="./libs/libs/jquery.min.js"></script>
@@ -38,17 +39,12 @@
     <!--<Article Navigator>-->
     <script src="./libs/libs/ArticleNavigator.js"></script>
 
-    <style>
-      .profile-img {
-        background-image: url("https://sancarn.github.io/Business/James.jpg");
-      }
-    </style>
   </head>
   <body>
       <header class="page-header">
           <a class="nav-back" href="../">↑ Water</a>
           <h1 class="headerIgnore">Parsing ICM Standalone and Transportable databases</h1>
-          <h2 class="headerIgnore">James Warren</h2>
+          <h2 class="headerIgnore" data-identity="name">Sancarn</h2>
       </header>
       <main class="main-content">
           <h2>Motivation</h2>
@@ -358,13 +354,13 @@
           <p>
             Enjoy!
           </p>
-          <a href="https://www.linkedin.com/in/james--warren/">
+          <a class="identity-linkedin" href="https://www.linkedin.com/in/james--warren/">
             <div class="profile-card">
               <div class="profile-container">
                 <div class="profile-cell profile-text">
                   <b>Author:</b>
                   <br>
-                  <b>James Warren, Software Engineer</b>
+                  <b data-identity="author">Sancarn</b>
                   <br>
                   Leicester, United Kingdom
                 </div>
